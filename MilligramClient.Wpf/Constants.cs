@@ -1,7 +1,9 @@
 ﻿namespace MilligramClient.Wpf;
 
-public class Constants
+public static class Constants
 {
-	public const string UsersFileName = "Users.xml";
-	public static readonly int FieldSize = 4;
+	public const string ServerAddress = "http://localhost:42312";
+	public static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(30);
+
+	public const int RefreshSlidingTokenBeforeExpirationInPercent = 50;
 }

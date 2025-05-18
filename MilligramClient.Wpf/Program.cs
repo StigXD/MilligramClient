@@ -3,7 +3,7 @@ namespace MilligramClient.Wpf;
 public static class Program
 {
 	[STAThread]
-	public static void Main()
+	private static void Main(string[] args)
 	{
 		Locator.Current.Locate<App>().Run();
 	}

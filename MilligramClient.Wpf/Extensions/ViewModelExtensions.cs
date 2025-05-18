@@ -1,6 +1,6 @@
-﻿using MilligramClient.Wpf.Base;
-using MilligramClient.Wpf.Dispatcher;
-using MilligramClient.Wpf.Services.View;
+﻿using MilligramClient.Common.Wpf.Base;
+using MilligramClient.Common.Wpf.Dispatcher;
+using MilligramClient.Common.Wpf.View;
 
 namespace MilligramClient.Wpf.Extensions;
 

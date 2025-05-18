@@ -1,22 +1,21 @@
 ﻿using System.Windows;
-using MilligramClient.Wpf.Database;
-using MilligramClient.Wpf.Views.AuthenticationWindow.Logic;
+using MilligramClient.Wpf.Views.Login.Logic;
+using MilligramClient.Wpf.Views.Main.Logic;
 
 
 namespace MilligramClient.Wpf;
 
-/// <summary>
-/// Логика взаимодействия для App.xaml
-/// </summary>
 public partial class App
 {
-	private readonly IUsersDB _usersDB;
-	private readonly IAuthWindowProvider _authWindowProvider;
+	private readonly IMainWindowProvider _mainWindowProvider;
+	private readonly ILoginWindowProvider _loginWindowProvider;
 
-	public App(IUsersDB usersDB, IAuthWindowProvider authWindowProvider)
+	public App(
+		IMainWindowProvider mainWindowProvider,
+		ILoginWindowProvider loginWindowProvider)
 	{
-		_usersDB = usersDB;
-		_authWindowProvider = authWindowProvider;
+		_mainWindowProvider = mainWindowProvider;
+		_loginWindowProvider = loginWindowProvider;
 
 		InitializeComponent();
 	}
@@ -24,13 +23,7 @@ public partial class App
 	protected override void OnStartup(StartupEventArgs e)
 	{
 		base.OnStartup(e);
-		_usersDB.Read();
-		_authWindowProvider.Show();
-	}
 
-	protected override void OnExit(ExitEventArgs e)
-	{
-		_usersDB.Write();
-		base.OnExit(e);
+		_loginWindowProvider.Show();
 	}
 }

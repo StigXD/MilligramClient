@@ -5,12 +5,12 @@ namespace MilligramClient.Wpf.Models;
 public class UserModel : ViewModelBase, ICloneable
 {
 	private string _username;
-	private int _highScore;
+	private string _password;
 	private bool _isRememberUser;
 	public UserModel()
 	{
 		Username = string.Empty;
-		HighScore = 0;
+		Password = string.Empty;
 		IsRememberUser = false;
 	}
 
@@ -20,10 +20,10 @@ public class UserModel : ViewModelBase, ICloneable
 		set => Set(ref _username, value);
 	}
 
-	public int HighScore
+	public string Password
 	{
-		get => _highScore;
-		set => Set(ref _highScore, value);
+		get => _password;
+		set => Set(ref _password, value);
 	}
 
 	public bool IsRememberUser

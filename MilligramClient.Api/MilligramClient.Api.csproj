@@ -6,4 +6,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="RestSharp" Version="112.1.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.10.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MilligramClient.Common\MilligramClient.Common.csproj" />
+    <ProjectReference Include="..\MilligramClient.Domain\MilligramClient.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

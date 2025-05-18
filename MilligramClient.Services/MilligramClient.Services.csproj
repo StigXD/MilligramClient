@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MilligramClient.Api\MilligramClient.Api.csproj" />
+    <ProjectReference Include="..\MilligramClient.Common\MilligramClient.Common.csproj" />
+    <ProjectReference Include="..\MilligramClient.Domain\MilligramClient.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
