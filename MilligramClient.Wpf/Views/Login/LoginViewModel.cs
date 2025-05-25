@@ -3,7 +3,6 @@ using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Messaging;
 using MilligramClient.Common.Wpf.Base;
 using MilligramClient.Wpf.Messages;
-using MilligramClient.Wpf.Models;
 using MilligramClient.Wpf.Views.Login.Controls.Login;
 using MilligramClient.Wpf.Views.Login.Controls.Register;
 using MilligramClient.Wpf.Views.Main.Logic;
@@ -12,7 +11,7 @@ namespace MilligramClient.Wpf.Views.Login;
 
 public class LoginViewModel : ViewModel<LoginWindow>
 {
-	public override object Header => "LogIn";
+	public override object Header => "Log in";
 
 	private readonly IMessenger _messenger;
 	private readonly IMainWindowProvider _mainWindowProvider;
@@ -93,6 +92,6 @@ public class LoginViewModel : ViewModel<LoginWindow>
 
     public interface IFactory
 	{
-		LoginViewModel Create(UserModel user);
+		LoginViewModel Create();
 	}
 }

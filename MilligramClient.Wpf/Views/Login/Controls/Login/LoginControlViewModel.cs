@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Windows.Input;
 using GalaSoft.MvvmLight.CommandWpf;
@@ -12,15 +11,15 @@ using MilligramClient.Common.Extensions;
 using MilligramClient.Common.Wpf.Base;
 using MilligramClient.Common.Wpf.Commands;
 using MilligramClient.Common.Wpf.MessageBox;
+using MilligramClient.Common.Wpf.Messages;
 using MilligramClient.Domain.Dtos;
+using MilligramClient.Services.Token;
 using MilligramClient.Wpf.Messages;
 
 namespace MilligramClient.Wpf.Views.Login.Controls.Login;
 
 public class LoginControlViewModel : ViewModel<LoginControl>, IDataErrorInfo
 {
-    private static readonly EmailAddressAttribute EmailAddressAttribute = new();
-
     private readonly IMessenger _messenger;
     private readonly ITokenProvider _tokenProvider;
     private readonly IMessageBoxService _messageBoxService;
@@ -28,12 +27,15 @@ public class LoginControlViewModel : ViewModel<LoginControl>, IDataErrorInfo
     private readonly ExecutionTracker _executionTracker;
 
     private bool _isBusy;
-    private string _email;
+    private string _login;
     private string _password;
+	private bool _isRememberMe;
 
-    private ICommand _cleanEmailCommand;
+    private ICommand _cleanLoginCommand;
+    private ICommand _cleanPasswordCommand;
     private ICommand _loginCommand;
     private ICommand _registerCommand;
+	private ICommand _exitCommand;
 
     public override object Header => string.Empty;
 
@@ -43,10 +45,10 @@ public class LoginControlViewModel : ViewModel<LoginControl>, IDataErrorInfo
         set => Set(ref _isBusy, value);
     }
 
-    public string Email
+    public string Login
     {
-        get => _email;
-        set => Set(ref _email, value);
+        get => _login;
+        set => Set(ref _login, value);
     }
 
     public string Password
@@ -55,13 +57,22 @@ public class LoginControlViewModel : ViewModel<LoginControl>, IDataErrorInfo
         set => Set(ref _password, value);
     }
 
-    public ICommand CleanEmailCommand => _cleanEmailCommand ??= new RelayCommand(OnCleanEmail);
+	public bool IsRememberMe
+	{
+		get => _isRememberMe;
+		set => Set(ref _isRememberMe, value);
+	}
+
+    public ICommand CleanLoginCommand => _cleanLoginCommand ??= new RelayCommand(OnCleanLogin);
+    public ICommand CleanPasswordCommand => _cleanPasswordCommand ??= new RelayCommand(OnCleanPassword);
     public ICommand LoginCommand => _loginCommand ??= new AsyncRelayCommand(OnLoginAsync, CanLogin);
     public ICommand RegisterCommand => _registerCommand ??= new RelayCommand(OnRegister);
+	public ICommand ExitCommand => _exitCommand ??= new RelayCommand(Exit);
 
     public LoginControlViewModel(
         IMessenger messenger,
-        ITokenProvider tokenProvider,
+		ITokenStorage tokenStorage, 
+		ITokenProvider tokenProvider,
         IMessageBoxService messageBoxService)
     {
         _messenger = messenger;
@@ -75,13 +86,17 @@ public class LoginControlViewModel : ViewModel<LoginControl>, IDataErrorInfo
 
     public void Refresh()
     {
-        Email = string.Empty;
+        Login = string.Empty;
         Password = string.Empty;
     }
 
-    private void OnCleanEmail()
+    private void OnCleanLogin()
     {
-        Email = string.Empty;
+        Login = string.Empty;
+    }
+    private void OnCleanPassword()
+    {
+        Password = string.Empty;
     }
 
     private async Task OnLoginAsync()
@@ -98,7 +113,7 @@ public class LoginControlViewModel : ViewModel<LoginControl>, IDataErrorInfo
     {
         try
         {
-            var loginDto = new LoginDto { Login = Email, Password = Password };
+            var loginDto = new LoginDto { Login = Login, Password = Password };
             await _tokenProvider.LoginAsync(loginDto).ConfigureAwait(false);
         }
         catch (SendRequestException exception) when (exception.StatusCode == HttpStatusCode.Unauthorized)
@@ -109,12 +124,17 @@ public class LoginControlViewModel : ViewModel<LoginControl>, IDataErrorInfo
 
     private bool CanLogin()
     {
-        return Email.IsSignificant() && Password.IsSignificant() && !HasError;
+        return Login.IsSignificant() && Password.IsSignificant() && !HasError;
     }
 
     private void OnRegister()
     {
         ChangeLoginWindow(LoginState.Register);
+    }
+
+	private void Exit()
+	{
+		_messenger.Send(new RequestCloseMessage(this, null));
     }
 
     private void ChangeLoginWindow(LoginState loginState)
@@ -131,7 +151,7 @@ public class LoginControlViewModel : ViewModel<LoginControl>, IDataErrorInfo
         get
         {
             _errors = new ObservableCollection<string>();
-            var error = this[nameof(Email)];
+            var error = this[nameof(Login)];
             if (!string.IsNullOrEmpty(error))
                 _errors.Add(error);
             error = this[nameof(Password)];
@@ -150,13 +170,10 @@ public class LoginControlViewModel : ViewModel<LoginControl>, IDataErrorInfo
             var error = string.Empty;
             switch (columnName)
             {
-                case nameof(Email):
+                case nameof(Login):
                 {
-                    if (string.IsNullOrEmpty(Email))
+                    if (string.IsNullOrEmpty(Login))
                         break;
-
-                    if (!EmailAddressAttribute.IsValid(Email))
-                        error = "Некорректный Email";
 
                     break;
                 }

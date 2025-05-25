@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 using System.Windows.Input;
 using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Messaging;
@@ -10,27 +9,27 @@ using MilligramClient.Common;
 using MilligramClient.Common.Extensions;
 using MilligramClient.Common.Wpf.Base;
 using MilligramClient.Common.Wpf.Commands;
-using MilligramClient.Common.Wpf.Dispatcher;
+using MilligramClient.Common.Wpf.MessageBox;
 using MilligramClient.Domain.Dtos;
+using MilligramClient.Services.Token;
 using MilligramClient.Wpf.Messages;
 
 namespace MilligramClient.Wpf.Views.Login.Controls.Register;
 
 public class RegisterControlViewModel : ViewModel<RegisterControl>, IDataErrorInfo
 {
-    private static readonly EmailAddressAttribute EmailAddressAttribute = new();
-
     private readonly IMessenger _messenger;
+	private readonly ITokenStorage _tokenStorage;
     private readonly IAccountClient _accountClient;
     private readonly ITokenProvider _tokenProvider;
-    private readonly IDispatcherHelper _dispatcherHelper;
+	private readonly IMessageBoxService _messageBoxService;
 
     private readonly ExecutionTracker _executionTracker;
 
     private CancellationTokenSource _cancellationTokenSource;
 
     private bool _isBusy;
-    private string _email;
+    private string _login;
     private string _password;
     private string _confirmPassword;
 
@@ -45,10 +44,10 @@ public class RegisterControlViewModel : ViewModel<RegisterControl>, IDataErrorIn
         set => Set(ref _isBusy, value);
     }
 
-    public string Email
+    public string Login
     {
-        get => _email;
-        set => Set(ref _email, value.Trim());
+        get => _login;
+        set => Set(ref _login, value.Trim());
     }
 
     public string Password
@@ -68,14 +67,16 @@ public class RegisterControlViewModel : ViewModel<RegisterControl>, IDataErrorIn
 
     public RegisterControlViewModel(
         IMessenger messenger,
-        IAccountClient accountClient,
+		ITokenStorage tokenStorage,
+		IAccountClient accountClient,
         ITokenProvider tokenProvider,
-        IDispatcherHelper dispatcherHelper)
+		IMessageBoxService messageBoxService)
     {
         _messenger = messenger;
+		_tokenStorage = tokenStorage;
         _accountClient = accountClient;
         _tokenProvider = tokenProvider;
-        _dispatcherHelper = dispatcherHelper;
+		_messageBoxService = messageBoxService;
 
         _executionTracker = new ExecutionTracker(() => IsBusy = true, () => IsBusy = false);
 
@@ -84,7 +85,7 @@ public class RegisterControlViewModel : ViewModel<RegisterControl>, IDataErrorIn
 
     public void Refresh()
     {
-        Email = string.Empty;
+        Login = string.Empty;
         Password = string.Empty;
         ConfirmPassword = string.Empty;
     }
@@ -101,26 +102,37 @@ public class RegisterControlViewModel : ViewModel<RegisterControl>, IDataErrorIn
 
     private async Task OnRegisterAsync()
     {
-        using (_executionTracker.TrackExecution())
-        {
-            await RegisterAsync().ConfigureAwait(false);
-
-            _messenger.Send(new CloseLoginWindowMessage());
-        }
+		using (_executionTracker.TrackExecution())
+		{
+			if (await TryRegisterAsync().ConfigureAwait(false))
+				_messenger.Send(new CloseLoginWindowMessage());
+		}
     }
 
-    private async Task RegisterAsync()
-    {
-        var registerDto = new RegisterDto { Login = Email, Password = Password };
-        await _accountClient.RegisterAsync(registerDto).ConfigureAwait(false);
+	private async Task<bool> TryRegisterAsync()
+	{
+		try
+		{
+			var registerDto = new RegisterDto { Login = Login, Password = Password };
+			await _accountClient.RegisterAsync(registerDto).ConfigureAwait(false);
 
-        var loginDto = new LoginDto { Login = Email, Password = Password };
-        await _tokenProvider.LoginAsync(loginDto).ConfigureAwait(false);
-    }
+			var loginDto = new LoginDto { Login = Login, Password = Password };
+			await _tokenProvider.LoginAsync(loginDto).ConfigureAwait(false);
+			_tokenStorage.SaveToken(_tokenProvider.GetToken());
+
+			return true;
+		}
+		catch
+		{
+			_messageBoxService.Show("Ошибка регистрации", "Ошибка");
+
+			return false;
+		}
+	}
 
     private bool CanRegister()
     {
-        return Email.IsSignificant() && Password.IsSignificant() && ConfirmPassword.IsSignificant() && !HasError;
+        return Login.IsSignificant() && Password.IsSignificant() && ConfirmPassword.IsSignificant() && !HasError;
     }
 
     public string Error => string.Empty;
@@ -132,7 +144,7 @@ public class RegisterControlViewModel : ViewModel<RegisterControl>, IDataErrorIn
         get
         {
             _errors = new ObservableCollection<string>();
-            var error = this[nameof(Email)];
+            var error = this[nameof(Login)];
             if (!string.IsNullOrEmpty(error))
                 _errors.Add(error);
             error = this[nameof(Password)];
@@ -154,13 +166,10 @@ public class RegisterControlViewModel : ViewModel<RegisterControl>, IDataErrorIn
             var error = string.Empty;
             switch (columnName)
             {
-                case nameof(Email):
+                case nameof(Login):
                 {
-                    if (string.IsNullOrWhiteSpace(Email))
+                    if (string.IsNullOrWhiteSpace(Login))
                         break;
-
-                    if (!EmailAddressAttribute.IsValid(Email))
-                        error = "Некорректный Email";
 
                     break;
                 }

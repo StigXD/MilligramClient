@@ -1,4 +1,4 @@
-﻿namespace MilligramClient.Wpf;
+﻿namespace MilligramClient.Common;
 
 public static class Constants
 {
@@ -6,4 +6,7 @@ public static class Constants
 	public static readonly TimeSpan RequestTimeout = TimeSpan.FromSeconds(30);
 
 	public const int RefreshSlidingTokenBeforeExpirationInPercent = 50;
+
+	public const string RegistryApplicationName = "HttpClientAuthorizeExample";
+	public const string RegistrySettingsKey = $@"SOFTWARE\{RegistryApplicationName}";
 }

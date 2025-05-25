@@ -14,5 +14,6 @@ public class DemoModel : LoginViewModel
 		DemoLocator.Locate<RegisterControlViewModel>())
 	{
 		LoginState = LoginState.Login;
+
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using MilligramClient.Api.Clients.Account;
 using MilligramClient.Domain.Dtos;
 using Nito.AsyncEx;
@@ -28,13 +29,45 @@ public class SlidingTokenProvider : ITokenProvider
     {
         using var _ = await _tokenAsyncLock.LockAsync();
 
-        var token = await _accountClient.LoginAsync(login);
-        _token = token.Token ?? throw new ArgumentNullException(nameof(token.Token), "Token is empty");
+        var loginResult = await _accountClient.LoginAsync(login).ConfigureAwait(false);
+        _token = loginResult.Token ?? throw new ArgumentNullException(nameof(loginResult.Token), "Token is empty");
+    }
+
+    public async Task LoginAsync(string token)
+    {
+        using var _ = await _tokenAsyncLock.LockAsync();
+
+        var refreshResult = await _accountClient.RefreshTokenAsync(token).ConfigureAwait(false);
+        _token = refreshResult.Token ?? throw new ArgumentNullException(nameof(refreshResult.Token), "Token is empty");
+    }
+
+    public void Logout()
+    {
+        _token = null;
+    }
+
+    public string GetToken()
+    {
+        return _token ?? throw new InvalidOperationException("You must login before using the token");
+    }
+
+    public string GetLoginFromToken()
+    {
+        var token = _token;
+
+        if (token == null)
+            throw new InvalidOperationException("You must login before using the token");
+
+        var jwtSecurityToken = _jwtSecurityTokenHandler.ReadJwtToken(token);
+
+        return jwtSecurityToken.Claims
+            .FirstOrDefault(claim => claim.Type == ClaimTypes.Name)
+            ?.Value ?? string.Empty;
     }
 
     public async Task<TResult> ExecuteWithToken<TResult>(Func<string, Task<TResult>> action)
     {
-        return await action(await GetTokenAsync());
+        return await action(await GetTokenAsync().ConfigureAwait(false)).ConfigureAwait(false);
     }
 
     private async Task<string> GetTokenAsync()
@@ -48,7 +81,7 @@ public class SlidingTokenProvider : ITokenProvider
         if (!IsNeedRefreshToken(_token))
             return _token;
 
-        var refreshResult = await _accountClient.RefreshTokenAsync(_token);
+        var refreshResult = await _accountClient.RefreshTokenAsync(_token).ConfigureAwait(false);
         _token = refreshResult.Token ?? throw new ArgumentNullException(nameof(refreshResult.Token), "Token is empty");
 
         return _token;

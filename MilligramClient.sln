@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MilligramClient.Common", "M
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MilligramClient.Common.Wpf", "MilligramClient.Common.Wpf\MilligramClient.Common.Wpf.csproj", "{09901D7C-5FB7-47D9-8C2A-AEBFDE12629D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MilligramClient.Services", "MilligramClient.Services\MilligramClient.Services.csproj", "{9588FCE5-0DD5-4564-8B87-3BED03252577}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{09901D7C-5FB7-47D9-8C2A-AEBFDE12629D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09901D7C-5FB7-47D9-8C2A-AEBFDE12629D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09901D7C-5FB7-47D9-8C2A-AEBFDE12629D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9588FCE5-0DD5-4564-8B87-3BED03252577}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9588FCE5-0DD5-4564-8B87-3BED03252577}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9588FCE5-0DD5-4564-8B87-3BED03252577}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9588FCE5-0DD5-4564-8B87-3BED03252577}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

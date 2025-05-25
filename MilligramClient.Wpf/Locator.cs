@@ -3,9 +3,11 @@ using Grace.DependencyInjection;
 using Grace.Factory;
 using MilligramClient.Api.Clients.Account;
 using MilligramClient.Api.Token;
+using MilligramClient.Common;
 using MilligramClient.Common.Wpf.Dispatcher;
 using MilligramClient.Common.Wpf.MessageBox;
 using MilligramClient.Common.Wpf.View;
+using MilligramClient.Services.Token;
 using MilligramClient.Wpf.Views.Login.Logic;
 using MilligramClient.Wpf.Views.Main.Logic;
 
@@ -52,7 +54,9 @@ public class Locator : ILocatorService
         RegisterSingleton<IMessageBoxService, MessageBoxService>(registration);
 
         RegisterSingleton<IMessenger, Messenger>(registration);
-    }
+
+		RegisterSingleton<ITokenStorage, TokenStorage>(registration);
+}
 
     private static void RegisterSingleton<TFrom, TTo>(IExportRegistrationBlock registrationBlock) where TTo : TFrom
     {
