@@ -1,7 +1,8 @@
-﻿using System.Windows.Input;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Input;
 using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Messaging;
-using MahApps.Metro.Controls;
 using MilligramClient.Api.Token;
 using MilligramClient.Common.Wpf.Base;
 using MilligramClient.Common.Wpf.MessageBox;
@@ -11,7 +12,7 @@ using MilligramClient.Wpf.Views.Login.Logic;
 
 namespace MilligramClient.Wpf.Views.Main;
 
-public class MainViewModel : ViewModel<MainWindow>
+public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 {
 	private string _login;
 
@@ -28,7 +29,10 @@ public class MainViewModel : ViewModel<MainWindow>
 	private readonly IMessageBoxService _messageBoxService;
 	private readonly ILoginWindowProvider _loginWindowProvider;
 
-	public string Login
+	public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
+	public event PropertyChangedEventHandler PropertyChanged;
+
+public string Login
 	{
 		get => _login;
 		set => Set(ref _login, value);
@@ -40,7 +44,6 @@ public class MainViewModel : ViewModel<MainWindow>
 
 	//public ICommand TestServerCommand => _testServerCommand ??= new AsyncRelayCommand(OnTestServer);
 	public ICommand ExitCommand => _exitCommand ??= new RelayCommand(OnExit);
-	private ICommand _menuItemInvokedCommand;
 
 	public MainViewModel(
 		IMessenger messenger,
@@ -50,13 +53,21 @@ public class MainViewModel : ViewModel<MainWindow>
 		ILoginWindowProvider loginWindowProvider)
 	{
 		_messenger = messenger;
-		_tokenStorage = tokenStorage;
-		_tokenProvider = tokenProvider;
+		//_tokenStorage = tokenStorage;
+		//_tokenProvider = tokenProvider;
 		_messageBoxService = messageBoxService;
 		_loginWindowProvider = loginWindowProvider;
-	}
 
-	private void OnExit()
+		MenuItems = new ObservableCollection<MenuItemViewModel>
+		{
+			new MenuItemViewModel { Name = "Home" },
+			new MenuItemViewModel { Name = "Settings" },
+			new MenuItemViewModel { Name = "About" }
+		};
+
+}
+
+    private void OnExit()
 	{
 		_messenger.Send(new RequestCloseMessage(this, null));
 	}
@@ -65,7 +76,7 @@ public class MainViewModel : ViewModel<MainWindow>
 	{
 		_loginWindowProvider.CloseIfCreated();
 
-		Login = _tokenProvider.GetLoginFromToken();
+		//Login = _tokenProvider.GetLoginFromToken();
 	}
 
 	private void OnLogout()
@@ -75,16 +86,6 @@ public class MainViewModel : ViewModel<MainWindow>
 		_loginWindowProvider.Show();
 	}
 
-	private void HamburgerMenuControl_OnItemInvoked(object sender, HamburgerMenuItemInvokedEventArgs e)
-	{
-		this.HamburgerMenuControl.Content = e.InvokedItem;
-
-		if (!e.IsItemOptions && this.HamburgerMenuControl.IsPaneOpen)
-		{
-			// You can close the menu if an item was selected
-			// this.HamburgerMenuControl.SetCurrentValue(HamburgerMenuControl.IsPaneOpenProperty, false);
-		}
-	}
 //private async Task OnTestServer()
     //{
     //	var testString = await _testClient.GetTestStringAsync().ConfigureAwait(false);

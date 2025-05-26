@@ -23,61 +23,12 @@
 					  FontSize="40"
 					  Background="BurlyWood"
 					  Title="{Binding Header}"
-					  x:Name="ThisWindow">
-<!--d:DataContext="{DynamicResource DemoModel}"-->
+					  x:Name="ThisWindow"
+					  d:DataContext="{DynamicResource DemoModel}">
 
 	<controls:MetroWindow.Resources>
-		<!--<main:DemoModel x:Key="DemoModel" />-->
+		<main:DemoModel x:Key="DemoModel" />
 
-		<ResourceDictionary x:Key="">
-
-			<!--  This is the template for all menu items. In this sample we use the glyph items.  -->
-			<DataTemplate x:Key="HamburgerMenuItem" DataType="{x:Type controls:HamburgerMenuGlyphItem}">
-				<DockPanel Height="48" LastChildFill="True">
-					<Grid x:Name="IconPart"
-              Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:HamburgerMenu}}, Path=CompactPaneLength}"
-              DockPanel.Dock="Left">
-						<Image Margin="12"
-                 HorizontalAlignment="Center"
-                 VerticalAlignment="Center"
-                 Source="{Binding Glyph}" />
-					</Grid>
-					<TextBlock x:Name="TextPart"
-                   VerticalAlignment="Center"
-                   FontSize="16"
-                   Text="{Binding Label}" />
-				</DockPanel>
-				<DataTemplate.Triggers>
-					<DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:HamburgerMenu}}, Path=PanePlacement}" Value="Right">
-						<Setter TargetName="IconPart" Property="DockPanel.Dock" Value="Right" />
-						<Setter TargetName="TextPart" Property="Margin" Value="8 0 0 0" />
-					</DataTrigger>
-				</DataTemplate.Triggers>
-			</DataTemplate>
-
-			<!--  This is the template for the option menu item  -->
-			<DataTemplate x:Key="HamburgerOptionsMenuItem" DataType="{x:Type controls:HamburgerMenuIconItem}">
-				<DockPanel Height="48" LastChildFill="True">
-					<ContentControl x:Name="IconPart"
-                        Width="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:HamburgerMenu}}, Path=CompactPaneLength}"
-                        Content="{Binding Icon}"
-                        DockPanel.Dock="Left"
-                        Focusable="False"
-                        IsTabStop="False" />
-					<TextBlock x:Name="TextPart"
-                   VerticalAlignment="Center"
-                   FontSize="16"
-                   Text="{Binding Label}" />
-				</DockPanel>
-				<DataTemplate.Triggers>
-					<DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType={x:Type controls:HamburgerMenu}}, Path=PanePlacement}" Value="Right">
-						<Setter TargetName="IconPart" Property="DockPanel.Dock" Value="Right" />
-						<Setter TargetName="TextPart" Property="Margin" Value="8 0 0 0" />
-					</DataTrigger>
-				</DataTemplate.Triggers>
-			</DataTemplate>
-
-		</ResourceDictionary>
 	</controls:MetroWindow.Resources>
 
 	<i:Interaction.Behaviors>
@@ -92,98 +43,27 @@
 
 
 	<Grid>
-		<сontrols:HamburgerMenu x:Name="HamburgerMenuControl"
-								DisplayMode="CompactOverlay"
-								HamburgerWidth="48"
-								ItemInvoked="{Binding HamburgerMenuControl_OnItemInvoked, Mode=TwoWay}"
-								ItemTemplate="{StaticResource HamburgerMenuItem}"
-								OptionsItemTemplate="{StaticResource HamburgerOptionsMenuItem}">
-			<!--  Header  -->
-			<сontrols:HamburgerMenu.HamburgerMenuHeaderTemplate>
-				<DataTemplate>
-					<TextBlock HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   FontSize="16"
-                   Foreground="White"
-                   Text="Pictures" />
-				</DataTemplate>
-			</сontrols:HamburgerMenu.HamburgerMenuHeaderTemplate>
+		<Grid>
+			<controls:HamburgerMenu x:Name="hamburgerMenu"
+									DisplayMode="CompactInline"
+									Background="{DynamicResource AccentColorBrush}">
+				<controls:HamburgerMenu.ItemTemplate>
+					<DataTemplate>
+						<StackPanel Orientation="Horizontal">
+							<TextBlock Text="{Binding Name}" Margin="10,0"/>
+						</StackPanel>
+					</DataTemplate>
+				</controls:HamburgerMenu.ItemTemplate>
 
-			<!--  Items  -->
-			<сontrols:HamburgerMenu.ItemsSource>
-				<сontrols:HamburgerMenuItemCollection>
-					<сontrols:HamburgerMenuGlyphItem Glyph="/Assets/Photos/BigFourSummerHeat.png" Label="Big four summer heat" />
-					<сontrols:HamburgerMenuGlyphItem Glyph="/Assets/Photos/BisonBadlandsChillin.png" Label="Bison badlands Chillin" />
-					<сontrols:HamburgerMenuGlyphItem Glyph="/Assets/Photos/GiantSlabInOregon.png" Label="Giant slab in Oregon" />
-					<сontrols:HamburgerMenuGlyphItem Glyph="/Assets/Photos/LakeAnnMushroom.png" Label="Lake Ann Mushroom" />
-				</сontrols:HamburgerMenuItemCollection>
-			</сontrols:HamburgerMenu.ItemsSource>
-
-			<!--  Options  -->
-			<сontrols:HamburgerMenu.OptionsItemsSource>
-				<сontrols:HamburgerMenuItemCollection>
-
-					<сontrols:HamburgerMenuIconItem Label="About">
-						<сontrols:HamburgerMenuIconItem.Icon>
-							<iconPacks:PackIconMaterial Width="22"
-                                        Height="22"
-                                        HorizontalAlignment="Center"
-                                        VerticalAlignment="Center"
-                                        Kind="Help" />
-						</сontrols:HamburgerMenuIconItem.Icon>
-						<сontrols:HamburgerMenuIconItem.Tag>
-							<TextBlock HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       FontSize="28"
-                       FontWeight="Bold">
-                About
-							</TextBlock>
-						</сontrols:HamburgerMenuIconItem.Tag>
-					</сontrols:HamburgerMenuIconItem>
-
-				</сontrols:HamburgerMenuItemCollection>
-			</сontrols:HamburgerMenu.OptionsItemsSource>
-
-			<!--  Content  -->
-			<сontrols:HamburgerMenu.ContentTemplate>
-				<DataTemplate>
-					<Grid x:Name="ContentGrid">
-						<Grid.RowDefinitions>
-							<RowDefinition Height="48" />
-							<RowDefinition />
-						</Grid.RowDefinitions>
-						<Border Grid.Row="0"
-                  Margin="-1 0 -1 0"
-                  Background="#7A7A7A">
-							<TextBlock x:Name="Header"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       FontSize="24"
-                       Foreground="White"
-                       Text="{Binding Label}" />
-						</Border>
-						<сontrols:TransitioningContentControl Grid.Row="1"
-															  Content="{Binding}"
-															  RestartTransitionOnContentChange="True"
-															  Transition="Default">
-
-							<сontrols:TransitioningContentControl.Resources>
-								<DataTemplate DataType="{x:Type controls:HamburgerMenuGlyphItem}">
-									<Image Source="{Binding Glyph, Mode=OneWay, Converter={converter:NullToUnsetValueConverter}}" />
-								</DataTemplate>
-
-								<DataTemplate DataType="{x:Type controls:HamburgerMenuIconItem}">
-									<ContentControl Content="{Binding Tag, Mode=OneWay}"
-                                  Focusable="True"
-                                  IsTabStop="False" />
-								</DataTemplate>
-							</сontrols:TransitioningContentControl.Resources>
-
-						</сontrols:TransitioningContentControl>
-					</Grid>
-				</DataTemplate>
-			</сontrols:HamburgerMenu.ContentTemplate>
-		</сontrols:HamburgerMenu>
+				<controls:HamburgerMenu.ItemsSource>
+					<x:Array Type="{x:Type main:MenuItemViewModel}">
+						<main:MenuItemViewModel Name="Home" />
+						<main:MenuItemViewModel Name="Settings" />
+						<main:MenuItemViewModel Name="About" />
+					</x:Array>
+				</controls:HamburgerMenu.ItemsSource>
+			</controls:HamburgerMenu>
+		</Grid>
 
 		<StackPanel VerticalAlignment="Center"
 					HorizontalAlignment="Center">
