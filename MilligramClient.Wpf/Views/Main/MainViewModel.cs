@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Messaging;
+using MahApps.Metro.Controls;
 using MilligramClient.Api.Token;
 using MilligramClient.Common.Wpf.Base;
 using MilligramClient.Common.Wpf.MessageBox;
@@ -18,8 +19,8 @@ public class MainViewModel : ViewModel<MainWindow>
 	private ICommand _logoutCommand;
 	private ICommand _testServerCommand;
 	private ICommand _exitCommand;
-	
-    public override object Header => "Milligram";
+
+	public override object Header => "Milligram";
 
 	private readonly IMessenger _messenger;
 	private readonly ITokenStorage _tokenStorage;
@@ -32,11 +33,14 @@ public class MainViewModel : ViewModel<MainWindow>
 		get => _login;
 		set => Set(ref _login, value);
 	}
-	
+
 	public ICommand ContentRenderedCommand => _contentRenderedCommand ??= new RelayCommand(OnContentRendered);
+
 	public ICommand LogoutCommand => _logoutCommand ??= new RelayCommand(OnLogout);
+
 	//public ICommand TestServerCommand => _testServerCommand ??= new AsyncRelayCommand(OnTestServer);
 	public ICommand ExitCommand => _exitCommand ??= new RelayCommand(OnExit);
+	private ICommand _menuItemInvokedCommand;
 
 	public MainViewModel(
 		IMessenger messenger,
@@ -52,7 +56,7 @@ public class MainViewModel : ViewModel<MainWindow>
 		_loginWindowProvider = loginWindowProvider;
 	}
 
-    private void OnExit()
+	private void OnExit()
 	{
 		_messenger.Send(new RequestCloseMessage(this, null));
 	}
@@ -71,13 +75,23 @@ public class MainViewModel : ViewModel<MainWindow>
 		_loginWindowProvider.Show();
 	}
 
-	//private async Task OnTestServer()
-	//{
-	//	var testString = await _testClient.GetTestStringAsync().ConfigureAwait(false);
-	//	_messageBoxService.Show(testString, "Ответ от сервера");
-	//}
+	private void HamburgerMenuControl_OnItemInvoked(object sender, HamburgerMenuItemInvokedEventArgs e)
+	{
+		this.HamburgerMenuControl.Content = e.InvokedItem;
 
-	public override void Cleanup()
+		if (!e.IsItemOptions && this.HamburgerMenuControl.IsPaneOpen)
+		{
+			// You can close the menu if an item was selected
+			// this.HamburgerMenuControl.SetCurrentValue(HamburgerMenuControl.IsPaneOpenProperty, false);
+		}
+	}
+//private async Task OnTestServer()
+    //{
+    //	var testString = await _testClient.GetTestStringAsync().ConfigureAwait(false);
+    //	_messageBoxService.Show(testString, "Ответ от сервера");
+    //}
+
+    public override void Cleanup()
 	{
 		base.Cleanup();
 	}
