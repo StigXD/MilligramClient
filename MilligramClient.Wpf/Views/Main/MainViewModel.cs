@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Windows.Input;
 using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Messaging;
+using MahApps.Metro.IconPacks;
 using MilligramClient.Api.Token;
 using MilligramClient.Common.Wpf.Base;
 using MilligramClient.Common.Wpf.MessageBox;
@@ -29,10 +30,10 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 	private readonly IMessageBoxService _messageBoxService;
 	private readonly ILoginWindowProvider _loginWindowProvider;
 
-	public ObservableCollection<MenuItemViewModel> MenuItems { get; set; }
-	public event PropertyChangedEventHandler PropertyChanged;
+	public ObservableCollection<HamburgerMenuItem> MenuItems { get; set; }
+	public ObservableCollection<HamburgerMenuItem> OptionsItems { get; }
 
-public string Login
+    public string Login
 	{
 		get => _login;
 		set => Set(ref _login, value);
@@ -58,15 +59,24 @@ public string Login
 		_messageBoxService = messageBoxService;
 		_loginWindowProvider = loginWindowProvider;
 
-		MenuItems = new ObservableCollection<MenuItemViewModel>
+		MenuItems = new ObservableCollection<HamburgerMenuItem>
 		{
-			new MenuItemViewModel { Name = "Home" },
-			new MenuItemViewModel { Name = "Settings" },
-			new MenuItemViewModel { Name = "About" }
+			new HamburgerMenuItem { Label = "Contacts", Icon = new PackIconIonicons { Kind = PackIconIoniconsKind.ContactsMD }, Tag = "contacts" },
+			new HamburgerMenuItem { Label = "Chats", Icon = new PackIconEntypo { Kind = PackIconEntypoKind.Chat }, Tag = "chats" },
+			new HamburgerMenuItem { Label = "Settings", Icon = new PackIconMaterial() { Kind = PackIconMaterialKind.AccountCog }, Tag = "settings" }
 		};
 
-}
+		OptionsItems = new ObservableCollection<HamburgerMenuItem>
+		{
+			new HamburgerMenuItem { Label = "Log out", Icon = new PackIconMaterial() { Kind = PackIconMaterialKind.Logout }, Tag = "logOut" }
 
+		};
+	}
+
+	private void HamburgerMenuControl_OnItemInvoked()
+	{
+
+	}
     private void OnExit()
 	{
 		_messenger.Send(new RequestCloseMessage(this, null));
@@ -86,13 +96,13 @@ public string Login
 		_loginWindowProvider.Show();
 	}
 
-//private async Task OnTestServer()
-    //{
-    //	var testString = await _testClient.GetTestStringAsync().ConfigureAwait(false);
-    //	_messageBoxService.Show(testString, "Ответ от сервера");
-    //}
+	//private async Task OnTestServer()
+	//{
+	//	var testString = await _testClient.GetTestStringAsync().ConfigureAwait(false);
+	//	_messageBoxService.Show(testString, "Ответ от сервера");
+	//}
 
-    public override void Cleanup()
+	public override void Cleanup()
 	{
 		base.Cleanup();
 	}

@@ -1,33 +1,39 @@
-﻿<controls:MetroWindow x:Class="MilligramClient.Wpf.Views.Main.MainWindow"
-					  xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-					  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-					  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-					  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-					  xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-					  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-					  xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
-					  xmlns:converters="clr-namespace:MilligramClient.Common.Wpf.Converters;assembly=MilligramClient.Common.Wpf"
-					  xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
-					  xmlns:behaviors="clr-namespace:MilligramClient.Common.Wpf.Behaviors;assembly=MilligramClient.Common.Wpf"
-					  xmlns:main="clr-namespace:MilligramClient.Wpf.Views.Main"
-					  xmlns:converter="clr-namespace:MahApps.Metro.IconPacks.Converter;assembly=MahApps.Metro.IconPacks.Core"
-					  xmlns:сontrols="http://metro.mahapps.com/winfx/xaml/controls"
-					  mc:Ignorable="d"
-					  ResizeMode="CanMinimize"
-					  ShowMaxRestoreButton="False"
-					  WindowStartupLocation="CenterScreen"
-					  Width="700"
-					  Height="500"
-					  Foreground="GhostWhite"
-					  FontWeight="Bold"
-					  FontSize="40"
-					  Background="BurlyWood"
-					  Title="{Binding Header}"
-					  x:Name="ThisWindow"
-					  d:DataContext="{DynamicResource DemoModel}">
+﻿<mah:MetroWindow x:Class="MilligramClient.Wpf.Views.Main.MainWindow"
+				 xmlns:mah="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+				 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+				 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+				 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+				 xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+				 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+				 xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+				 xmlns:converters="clr-namespace:MilligramClient.Common.Wpf.Converters;assembly=MilligramClient.Common.Wpf"
+				 xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+				 xmlns:behaviors="clr-namespace:MilligramClient.Common.Wpf.Behaviors;assembly=MilligramClient.Common.Wpf"
+				 xmlns:main="clr-namespace:MilligramClient.Wpf.Views.Main"
+				 xmlns:converter="clr-namespace:MahApps.Metro.IconPacks.Converter;assembly=MahApps.Metro.IconPacks.Core"
+				 xmlns:сontrols="http://metro.mahapps.com/winfx/xaml/controls"
+				 mc:Ignorable="d"
+				 ResizeMode="CanMinimize"
+				 ShowMaxRestoreButton="False"
+				 WindowStartupLocation="CenterScreen"
+				 Width="700"
+				 Height="500"
+				 Foreground="GhostWhite"
+				 FontWeight="Bold"
+				 FontSize="40"
+				 Background="BurlyWood"
+				 Title="{Binding Header}"
+				 x:Name="ThisWindow"
+				 d:DataContext="{DynamicResource DemoModel}">
 
 	<controls:MetroWindow.Resources>
 		<main:DemoModel x:Key="DemoModel" />
+
+		<Style x:Key="ChatButtonStyle" TargetType="Button" BasedOn="{StaticResource MahApps.Styles.Button}">
+			<Setter Property="Margin" Value="5" />
+			<Setter Property="Padding" Value="10,5" />
+			<Setter Property="FontSize" Value="14" />
+		</Style>
 
 	</controls:MetroWindow.Resources>
 
@@ -43,46 +49,129 @@
 
 
 	<Grid>
+		<!-- Основное содержимое -->
 		<Grid>
-			<controls:HamburgerMenu x:Name="hamburgerMenu"
-									DisplayMode="CompactInline"
-									Background="{DynamicResource AccentColorBrush}">
-				<controls:HamburgerMenu.ItemTemplate>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
+
+			<!-- Меню -->
+			<mah:HamburgerMenu Grid.Column="0"
+							   x:Name="HamburgerMenuControl"
+							   ItemsSource="{Binding MenuItems}"
+							   OptionsItemsSource="{Binding OptionsItems}">
+
+				<mah:HamburgerMenu.HamburgerMenuHeaderTemplate>
+					<DataTemplate>
+						<TextBlock HorizontalAlignment="Center"
+								   VerticalAlignment="Center"
+								   FontSize="16"
+								   Foreground="White"
+								   Text="{Binding }" />
+					</DataTemplate>
+				</mah:HamburgerMenu.HamburgerMenuHeaderTemplate>
+
+				<mah:HamburgerMenu.ItemTemplate>
 					<DataTemplate>
 						<StackPanel Orientation="Horizontal">
-							<TextBlock Text="{Binding Name}" Margin="10,0"/>
+							<ContentControl Content="{Binding Icon}" Margin="0 0 8 0" />
+							<TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" />
 						</StackPanel>
 					</DataTemplate>
-				</controls:HamburgerMenu.ItemTemplate>
+				</mah:HamburgerMenu.ItemTemplate>
 
-				<controls:HamburgerMenu.ItemsSource>
-					<x:Array Type="{x:Type main:MenuItemViewModel}">
-						<main:MenuItemViewModel Name="Home" />
-						<main:MenuItemViewModel Name="Settings" />
-						<main:MenuItemViewModel Name="About" />
-					</x:Array>
-				</controls:HamburgerMenu.ItemsSource>
-			</controls:HamburgerMenu>
-		</Grid>
+				<mah:HamburgerMenu.OptionsItemTemplate>
+					<DataTemplate>
+						<StackPanel Orientation="Horizontal">
+							<ContentControl Content="{Binding Icon}" Margin="0 0 8 0" />
+							<TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" />
+						</StackPanel>
+					</DataTemplate>
+				</mah:HamburgerMenu.OptionsItemTemplate>
 
-		<StackPanel VerticalAlignment="Center"
-					HorizontalAlignment="Center">
-			<StackPanel Orientation="Horizontal">
-				<TextBlock FontSize="16"
-						   Padding="20,10"
-						   VerticalAlignment="Center"
-						   Text="{Binding Login, Mode=OneWay}" />
 
-				<Button Padding="20,10"
-						Command="{Binding LogoutCommand, Mode=OneWay}"
-						Content="Log out" />
+				<mah:HamburgerMenu.ContentTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding Tag}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" />
+					</DataTemplate>
+				</mah:HamburgerMenu.ContentTemplate>
+			</mah:HamburgerMenu>
+
+			<ListView Grid.Column="1">
+
+			</ListView>
+			<!-- Поле сообщений -->
+			<StackPanel Grid.Column="2" Orientation="Vertical">
+				<ScrollViewer VerticalScrollBarVisibility="Auto"
+							  Height="430"
+							  Width="450"
+							  Background="AliceBlue">
+					<ItemsControl ItemsSource="{Binding Messages}">
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<Border Margin="5" Padding="10" Background="#3FFFFFFF" CornerRadius="5">
+									<StackPanel>
+										<TextBlock Text="{Binding Sender}" FontWeight="Bold" Foreground="Black" />
+										<TextBlock Text="{Binding Text}" TextWrapping="Wrap" Margin="0,5,0,0" />
+										<TextBlock Text="{Binding Timestamp}" FontSize="10" Foreground="#FFA0A0A0" HorizontalAlignment="Right" />
+									</StackPanel>
+								</Border>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+				</ScrollViewer>
+
+				<!-- Поле ввода сообщения -->
+				<StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+					<TextBox Text="{Binding NewMessageText, UpdateSourceTrigger=PropertyChanged}"
+							 VerticalContentAlignment="Center"
+							 controls:TextBoxHelper.Watermark="Введите сообщение..."
+							 Margin="0,0,5,0">
+						<TextBox.InputBindings>
+							<KeyBinding Key="Enter" Command="{Binding SendMessageCommand}" />
+						</TextBox.InputBindings>
+					</TextBox>
+
+					<Button Command="{Binding AttachFileCommand}"
+							Style="{StaticResource MahApps.Styles.Button.Circle}"
+							Width="40"
+							Height="40"
+							Margin="0,0,5,0"
+							ToolTip="Прикрепить файл">
+						<iconPacks:PackIconMaterial Kind="Paperclip" Width="24" Height="24"/>
+					</Button>
+
+					<Button Command="{Binding SendMessageCommand}"
+							Style="{StaticResource ChatButtonStyle}"
+							Content="Отправить" />
+				</StackPanel>
+				<!-- Статусная строка -->
+				<StatusBar Background="Transparent">
+					<TextBlock Text="{Binding StatusMessage}" FontSize="12" />
+				</StatusBar>
 			</StackPanel>
 
-			<Button Margin="0,4,0,0"
-					Padding="20,10"
-					Command="{Binding ExitCommand, Mode=OneWay}"
-					Content="Exit" />
-		</StackPanel>
-	</Grid>
+			<!--<StackPanel VerticalAlignment="Center"
+						HorizontalAlignment="Center">
+				<StackPanel Orientation="Horizontal">
+					<TextBlock FontSize="16"
+							   Padding="20,10"
+							   VerticalAlignment="Center"
+							   Text="{Binding Login, Mode=OneWay}" />
 
-</controls:MetroWindow>
+					<Button Padding="20,10"
+							Command="{Binding LogoutCommand, Mode=OneWay}"
+							Content="Log out" />
+				</StackPanel>
+
+				<Button Margin="0,4,0,0"
+						Padding="20,10"
+						Command="{Binding ExitCommand, Mode=OneWay}"
+						Content="Exit" />
+			</StackPanel>-->
+
+		</Grid>
+	</Grid>
+</mah:MetroWindow>

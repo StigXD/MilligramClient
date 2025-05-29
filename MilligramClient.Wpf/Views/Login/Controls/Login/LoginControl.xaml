@@ -54,7 +54,7 @@
                    Margin="5,5,5,5"
 				   FontSize="16"
 				   IsHitTestVisible="False"
-				   Text="Login or Login"
+				   Text="Login or Email"
 				   Foreground="DarkGray">
             <TextBlock.Style>
                 <Style TargetType="{x:Type TextBlock}">
@@ -185,8 +185,8 @@
 					Width="70"
 					Background="Red"
 					Foreground="White"
-					Content="Cancel"
-					Command="{Binding ExitCommand, Mode=OneWay}">
+					Content="Exit"
+					Command="{Binding OnExitCommand, Mode=OneWay}">
                 <Button.Resources>
                     <Style TargetType="{x:Type Border}">
                         <Setter Property="CornerRadius" Value="10" />
