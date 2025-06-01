@@ -8,6 +8,7 @@ using MilligramClient.Api.Token;
 using MilligramClient.Common.Wpf.Base;
 using MilligramClient.Common.Wpf.MessageBox;
 using MilligramClient.Common.Wpf.Messages;
+using MilligramClient.Domain.Model;
 using MilligramClient.Services.Token;
 using MilligramClient.Wpf.Views.Login.Logic;
 
@@ -16,11 +17,15 @@ namespace MilligramClient.Wpf.Views.Main;
 public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 {
 	private string _login;
+	private string _newMessageText;
+	private string _statusMessage;
+	private HamburgerMenuItem _selectedMenuItem;
 
 	private ICommand _contentRenderedCommand;
 	private ICommand _logoutCommand;
 	private ICommand _testServerCommand;
 	private ICommand _exitCommand;
+	private ICommand _menuCommand;
 
 	public override object Header => "Milligram";
 
@@ -32,14 +37,42 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 
 	public ObservableCollection<HamburgerMenuItem> MenuItems { get; set; }
 	public ObservableCollection<HamburgerMenuItem> OptionsItems { get; }
+	public ObservableCollection<MessageModel> Messages { get; } = new ObservableCollection<MessageModel>();
 
-    public string Login
+	public string Login
 	{
 		get => _login;
 		set => Set(ref _login, value);
 	}
 
+	public string NewMessageText
+	{
+		get => _newMessageText;
+		set => Set(ref _newMessageText, value);
+	}
+
+
+	public string StatusMessage
+	{
+		get => _statusMessage;
+		set => Set(ref _statusMessage, value);
+	}
+
+	public HamburgerMenuItem SelectedMenuItem
+	{
+		get => _selectedMenuItem;
+		set
+		{
+			Set(ref _selectedMenuItem, value);
+			if (value != null) OnMenuSelected(value.Tag.ToString());
+		}
+	}
+
+	// Команды
+	public ICommand SendMessageCommand { get; }
+	public ICommand AttachFileCommand { get; }
 	public ICommand ContentRenderedCommand => _contentRenderedCommand ??= new RelayCommand(OnContentRendered);
+	public ICommand MenuCommand => _menuCommand ??= new RelayCommand<string>(OnMenuSelected);
 
 	public ICommand LogoutCommand => _logoutCommand ??= new RelayCommand(OnLogout);
 
@@ -61,23 +94,72 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 
 		MenuItems = new ObservableCollection<HamburgerMenuItem>
 		{
-			new HamburgerMenuItem { Label = "Contacts", Icon = new PackIconIonicons { Kind = PackIconIoniconsKind.ContactsMD }, Tag = "contacts" },
-			new HamburgerMenuItem { Label = "Chats", Icon = new PackIconEntypo { Kind = PackIconEntypoKind.Chat }, Tag = "chats" },
-			new HamburgerMenuItem { Label = "Settings", Icon = new PackIconMaterial() { Kind = PackIconMaterialKind.AccountCog }, Tag = "settings" }
+			new HamburgerMenuItem { Label = "Contacts", Icon = PackIconIoniconsKind.ContactsMD, Tag = "contacts" },
+			new HamburgerMenuItem { Label = "Chats", Icon = PackIconIoniconsKind.ChatboxesMD, Tag = "chats" },
+			new HamburgerMenuItem { Label = "Settings", Icon = PackIconIoniconsKind.SettingsMD, Tag = "settings" }
 		};
 
 		OptionsItems = new ObservableCollection<HamburgerMenuItem>
 		{
-			new HamburgerMenuItem { Label = "Log out", Icon = new PackIconMaterial() { Kind = PackIconMaterialKind.Logout }, Tag = "logOut" }
-
+			new HamburgerMenuItem { Label = "Log out", Icon = PackIconIoniconsKind.LogOutMD, Tag = "logOut" }
 		};
+		SendMessageCommand = new RelayCommand(SendMessage, () => !string.IsNullOrWhiteSpace(NewMessageText));
+		AttachFileCommand = new RelayCommand(AttachFile);
+
+		// Пример сообщений (в реальном приложении будет загрузка из сервера)
+		Messages.Add(new MessageModel
+		{
+			Sender = "Система",
+			Text = "Добро пожаловать в чат!",
+			Timestamp = DateTime.Now.ToString("HH:mm")
+		});
 	}
 
-	private void HamburgerMenuControl_OnItemInvoked()
+	private void OnMenuSelected(string tag)
 	{
-
+		switch (tag)
+		{
+			case "HomeView":
+				SelectedView = new HomeView();
+				break;
+			case "ProfileView":
+				SelectedView = new ProfileView();
+				break;
+			case "SettingsView":
+				SelectedView = new SettingsView();
+				break;
+			case "Logout":
+				LogoutCommand.Execute(null);
+				break;
+		}
 	}
-    private void OnExit()
+
+	private void SendMessage()
+	{
+		if (string.IsNullOrWhiteSpace(NewMessageText)) return;
+
+		Messages.Add(new MessageModel
+		{
+			Sender = "Вы",
+			Text = NewMessageText,
+			Timestamp = DateTime.Now.ToString("HH:mm")
+		});
+
+		NewMessageText = string.Empty;
+		StatusMessage = "Сообщение отправлено";
+	}
+
+	private void AttachFile()
+	{
+		var openFileDialog = new Microsoft.Win32.OpenFileDialog();
+		if (openFileDialog.ShowDialog() == true)
+		{
+			StatusMessage = $"Прикреплен файл: {openFileDialog.FileName}";
+			// Здесь можно добавить логику обработки файла
+		}
+	}
+
+	private void OnExit()
 	{
 		_messenger.Send(new RequestCloseMessage(this, null));
 	}

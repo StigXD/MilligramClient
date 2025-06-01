@@ -17,7 +17,7 @@
 				 ShowMaxRestoreButton="False"
 				 WindowStartupLocation="CenterScreen"
 				 Width="700"
-				 Height="500"
+				 Height="510"
 				 Foreground="GhostWhite"
 				 FontWeight="Bold"
 				 FontSize="40"
@@ -47,59 +47,19 @@
 		</i:EventTrigger>
 	</i:Interaction.Triggers>
 
-
 	<Grid>
-		<!-- Основное содержимое -->
+        <!-- Основное содержимое -->
 		<Grid>
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="Auto" />
-				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width ="50"/>
+				<ColumnDefinition Width="200" />
 				<ColumnDefinition Width="Auto" />
 			</Grid.ColumnDefinitions>
 
-			<!-- Меню -->
-			<mah:HamburgerMenu Grid.Column="0"
-							   x:Name="HamburgerMenuControl"
-							   ItemsSource="{Binding MenuItems}"
-							   OptionsItemsSource="{Binding OptionsItems}">
-
-				<mah:HamburgerMenu.HamburgerMenuHeaderTemplate>
-					<DataTemplate>
-						<TextBlock HorizontalAlignment="Center"
-								   VerticalAlignment="Center"
-								   FontSize="16"
-								   Foreground="White"
-								   Text="{Binding }" />
-					</DataTemplate>
-				</mah:HamburgerMenu.HamburgerMenuHeaderTemplate>
-
-				<mah:HamburgerMenu.ItemTemplate>
-					<DataTemplate>
-						<StackPanel Orientation="Horizontal">
-							<ContentControl Content="{Binding Icon}" Margin="0 0 8 0" />
-							<TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" />
-						</StackPanel>
-					</DataTemplate>
-				</mah:HamburgerMenu.ItemTemplate>
-
-				<mah:HamburgerMenu.OptionsItemTemplate>
-					<DataTemplate>
-						<StackPanel Orientation="Horizontal">
-							<ContentControl Content="{Binding Icon}" Margin="0 0 8 0" />
-							<TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" />
-						</StackPanel>
-					</DataTemplate>
-				</mah:HamburgerMenu.OptionsItemTemplate>
-
-
-				<mah:HamburgerMenu.ContentTemplate>
-					<DataTemplate>
-						<TextBlock Text="{Binding Tag}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" />
-					</DataTemplate>
-				</mah:HamburgerMenu.ContentTemplate>
-			</mah:HamburgerMenu>
-
-			<ListView Grid.Column="1">
+            <ListView Grid.Column="1"
+                      HorizontalContentAlignment="Stretch"
+                      VerticalContentAlignment="Center"
+                      Margin="2,0,5,5">
 
 			</ListView>
 			<!-- Поле сообщений -->
@@ -125,16 +85,29 @@
 
 				<!-- Поле ввода сообщения -->
 				<StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-					<TextBox Text="{Binding NewMessageText, UpdateSourceTrigger=PropertyChanged}"
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="330"/>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition Width="70"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <TextBox Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Stretch"
+                             Text="{Binding NewMessageText, UpdateSourceTrigger=PropertyChanged}"
 							 VerticalContentAlignment="Center"
 							 controls:TextBoxHelper.Watermark="Введите сообщение..."
-							 Margin="0,0,5,0">
+							 Margin="5,5,5,0">
 						<TextBox.InputBindings>
 							<KeyBinding Key="Enter" Command="{Binding SendMessageCommand}" />
 						</TextBox.InputBindings>
 					</TextBox>
 
-					<Button Command="{Binding AttachFileCommand}"
+                        <Button  Grid.Column="1" Grid.Row="0"
+                                 Command="{Binding AttachFileCommand}"
 							Style="{StaticResource MahApps.Styles.Button.Circle}"
 							Width="40"
 							Height="40"
@@ -143,14 +116,17 @@
 						<iconPacks:PackIconMaterial Kind="Paperclip" Width="24" Height="24"/>
 					</Button>
 
-					<Button Command="{Binding SendMessageCommand}"
+                        <Button  Grid.Column="2" Grid.Row="0"
+                                 Command="{Binding SendMessageCommand}"
 							Style="{StaticResource ChatButtonStyle}"
-							Content="Отправить" />
-				</StackPanel>
-				<!-- Статусная строка -->
-				<StatusBar Background="Transparent">
-					<TextBlock Text="{Binding StatusMessage}" FontSize="12" />
-				</StatusBar>
+							Content="SEND" />
+                        <!-- Статусная строка -->
+                        <StatusBar Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" 
+                            Background="Transparent">
+                            <TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="Black"/>
+                        </StatusBar>
+                    </Grid>
+                </StackPanel>
 			</StackPanel>
 
 			<!--<StackPanel VerticalAlignment="Center"
@@ -173,5 +149,54 @@
 			</StackPanel>-->
 
 		</Grid>
-	</Grid>
+
+        <!-- Меню -->
+        <mah:HamburgerMenu Grid.Column="0" x:Name="HamburgerMenuControl"
+							   ItemsSource="{Binding MenuItems}"
+							   SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
+							   OptionsItemsSource="{Binding OptionsItems}">
+
+			<i:Interaction.Behaviors>
+				<main:HamburgerMenuBehavior />
+			</i:Interaction.Behaviors>
+
+
+			<mah:HamburgerMenu.HamburgerMenuHeaderTemplate>
+                <DataTemplate>
+                    <TextBlock HorizontalAlignment="Center"
+								   VerticalAlignment="Center"
+								   FontSize="16"
+								   Foreground="White"
+								   Text="{Binding }" />
+                </DataTemplate>
+            </mah:HamburgerMenu.HamburgerMenuHeaderTemplate>
+
+            <mah:HamburgerMenu.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconIonicons Kind="{Binding Icon}" Padding="10" Width="50" Height="50" />
+                        <!--<ContentControl Content="{Binding Icon}" Margin="0 0 8 0" />\-->
+                        <TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" />
+                    </StackPanel>
+                </DataTemplate>
+            </mah:HamburgerMenu.ItemTemplate>
+
+            <mah:HamburgerMenu.OptionsItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <iconPacks:PackIconIonicons Kind="{Binding Icon}" Padding="10" Width="50" Height="50" />
+                        <TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" />
+                    </StackPanel>
+                </DataTemplate>
+            </mah:HamburgerMenu.OptionsItemTemplate>
+
+
+            <mah:HamburgerMenu.ContentTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Tag}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" />
+                </DataTemplate>
+            </mah:HamburgerMenu.ContentTemplate>
+        </mah:HamburgerMenu>
+
+    </Grid>
 </mah:MetroWindow>

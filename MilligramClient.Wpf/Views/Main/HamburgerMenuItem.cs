@@ -1,4 +1,5 @@
-﻿using MilligramClient.Common;
+﻿using MahApps.Metro.IconPacks;
+using MilligramClient.Common;
 
 namespace MilligramClient.Wpf.Views.Main;
 
@@ -6,7 +7,7 @@ public class HamburgerMenuItem : PropertyChangedBase
 {
 	private string _label;
 	private object _tag;
-	private object _icon;
+	private PackIconIoniconsKind _icon;
 
 	public string Label
 	{
@@ -20,7 +21,7 @@ public class HamburgerMenuItem : PropertyChangedBase
 		set => Set(ref _tag, value);
 	}
 
-	public object Icon
+	public PackIconIoniconsKind Icon
 	{
 		get => _icon;
 		set => Set(ref _icon, value);
