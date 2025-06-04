@@ -4,6 +4,7 @@
 				 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 				 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 				 xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+				 xmlns:hm="http://schemas.microsoft.com/xaml/behaviors"
 				 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 				 xmlns:controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
 				 xmlns:converters="clr-namespace:MilligramClient.Common.Wpf.Converters;assembly=MilligramClient.Common.Wpf"
@@ -11,19 +12,14 @@
 				 xmlns:behaviors="clr-namespace:MilligramClient.Common.Wpf.Behaviors;assembly=MilligramClient.Common.Wpf"
 				 xmlns:main="clr-namespace:MilligramClient.Wpf.Views.Main"
 				 xmlns:converter="clr-namespace:MahApps.Metro.IconPacks.Converter;assembly=MahApps.Metro.IconPacks.Core"
-				 xmlns:сontrols="http://metro.mahapps.com/winfx/xaml/controls"
+				 xmlns:сontrols="http://metro.mahapps.com/winfx/xaml/controls" 
 				 mc:Ignorable="d"
 				 ResizeMode="CanMinimize"
 				 ShowMaxRestoreButton="False"
 				 WindowStartupLocation="CenterScreen"
 				 Width="700"
 				 Height="510"
-				 Foreground="GhostWhite"
-				 FontWeight="Bold"
-				 FontSize="40"
-				 Background="BurlyWood"
 				 Title="{Binding Header}"
-				 x:Name="ThisWindow"
 				 d:DataContext="{DynamicResource DemoModel}">
 
 	<controls:MetroWindow.Resources>
@@ -67,14 +63,14 @@
 				<ScrollViewer VerticalScrollBarVisibility="Auto"
 							  Height="430"
 							  Width="450"
-							  Background="AliceBlue">
+							  Background="CornflowerBlue">
 					<ItemsControl ItemsSource="{Binding Messages}">
 						<ItemsControl.ItemTemplate>
 							<DataTemplate>
-								<Border Margin="5" Padding="10" Background="#3FFFFFFF" CornerRadius="5">
+								<Border Margin="5" Padding="10" BorderBrush="Black" BorderThickness="1"  CornerRadius="5">
 									<StackPanel>
-										<TextBlock Text="{Binding Sender}" FontWeight="Bold" Foreground="Black" />
-										<TextBlock Text="{Binding Text}" TextWrapping="Wrap" Margin="0,5,0,0" />
+										<TextBlock Text="{Binding Sender}" FontSize="14" FontWeight="Bold" Foreground="Black" />
+										<TextBlock Text="{Binding Text}" FontSize="14" Foreground="Black" TextWrapping="Wrap" Margin="0,5,0,0" />
 										<TextBlock Text="{Binding Timestamp}" FontSize="10" Foreground="#FFA0A0A0" HorizontalAlignment="Right" />
 									</StackPanel>
 								</Border>
@@ -151,15 +147,11 @@
 		</Grid>
 
         <!-- Меню -->
-        <mah:HamburgerMenu Grid.Column="0" x:Name="HamburgerMenuControl"
-							   ItemsSource="{Binding MenuItems}"
+		<mah:HamburgerMenu Grid.Column="0" x:Name="HamburgerMenuControl"
+							   ItemsSource="{Binding Menu.MenuItems}"
 							   SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
-							   OptionsItemsSource="{Binding OptionsItems}">
-
-			<i:Interaction.Behaviors>
-				<main:HamburgerMenuBehavior />
-			</i:Interaction.Behaviors>
-
+							   SelectedOptionsItem="{Binding SelectedMenuItem, Mode=TwoWay}"
+							   OptionsItemsSource="{Binding Menu.MenuOptionsItems}">
 
 			<mah:HamburgerMenu.HamburgerMenuHeaderTemplate>
                 <DataTemplate>
@@ -173,9 +165,8 @@
 
             <mah:HamburgerMenu.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <iconPacks:PackIconIonicons Kind="{Binding Icon}" Padding="10" Width="50" Height="50" />
-                        <!--<ContentControl Content="{Binding Icon}" Margin="0 0 8 0" />\-->
+					<StackPanel Orientation="Horizontal" Visibility="{Binding IsVisible}">
+						<iconPacks:PackIconIonicons Kind="{Binding Icon}" Padding="10" Width="50" Height="50" />
                         <TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" />
                     </StackPanel>
                 </DataTemplate>
@@ -183,7 +174,7 @@
 
             <mah:HamburgerMenu.OptionsItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
+					<StackPanel Orientation="Horizontal" Visibility="{Binding IsVisible}">
                         <iconPacks:PackIconIonicons Kind="{Binding Icon}" Padding="10" Width="50" Height="50" />
                         <TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" />
                     </StackPanel>

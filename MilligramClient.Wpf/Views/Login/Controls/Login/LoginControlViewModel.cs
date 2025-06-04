@@ -11,7 +11,6 @@ using MilligramClient.Common.Extensions;
 using MilligramClient.Common.Wpf.Base;
 using MilligramClient.Common.Wpf.Commands;
 using MilligramClient.Common.Wpf.MessageBox;
-using MilligramClient.Common.Wpf.Messages;
 using MilligramClient.Domain.Dtos;
 using MilligramClient.Services.Token;
 using MilligramClient.Wpf.Messages;

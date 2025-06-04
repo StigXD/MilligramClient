@@ -1,9 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows;
 using System.Windows.Input;
 using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Messaging;
-using MahApps.Metro.IconPacks;
 using MilligramClient.Api.Token;
 using MilligramClient.Common.Wpf.Base;
 using MilligramClient.Common.Wpf.MessageBox;
@@ -35,7 +36,7 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 	private readonly IMessageBoxService _messageBoxService;
 	private readonly ILoginWindowProvider _loginWindowProvider;
 
-	public ObservableCollection<HamburgerMenuItem> MenuItems { get; set; }
+	public HamburgerMenuItems Menu { get; } = new HamburgerMenuItems();
 	public ObservableCollection<HamburgerMenuItem> OptionsItems { get; }
 	public ObservableCollection<MessageModel> Messages { get; } = new ObservableCollection<MessageModel>();
 
@@ -51,7 +52,6 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		set => Set(ref _newMessageText, value);
 	}
 
-
 	public string StatusMessage
 	{
 		get => _statusMessage;
@@ -64,7 +64,10 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		set
 		{
 			Set(ref _selectedMenuItem, value);
-			if (value != null) OnMenuSelected(value.Tag.ToString());
+			if (value != null)
+			{
+				OnMenuSelected(value.Tag.ToString());
+			}
 		}
 	}
 
@@ -92,17 +95,8 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		_messageBoxService = messageBoxService;
 		_loginWindowProvider = loginWindowProvider;
 
-		MenuItems = new ObservableCollection<HamburgerMenuItem>
-		{
-			new HamburgerMenuItem { Label = "Contacts", Icon = PackIconIoniconsKind.ContactsMD, Tag = "contacts" },
-			new HamburgerMenuItem { Label = "Chats", Icon = PackIconIoniconsKind.ChatboxesMD, Tag = "chats" },
-			new HamburgerMenuItem { Label = "Settings", Icon = PackIconIoniconsKind.SettingsMD, Tag = "settings" }
-		};
+		//_messenger.Register<MainWindowMenuSelectedMessage>(this, OnMenuSelected);
 
-		OptionsItems = new ObservableCollection<HamburgerMenuItem>
-		{
-			new HamburgerMenuItem { Label = "Log out", Icon = PackIconIoniconsKind.LogOutMD, Tag = "logOut" }
-		};
 		SendMessageCommand = new RelayCommand(SendMessage, () => !string.IsNullOrWhiteSpace(NewMessageText));
 		AttachFileCommand = new RelayCommand(AttachFile);
 
@@ -115,24 +109,41 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		});
 	}
 
-	private void OnMenuSelected(string tag)
+	public event PropertyChangedEventHandler PropertyChanged;
+
+	protected void OnPropertyChanged([CallerMemberName] string name = null)
 	{
+		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+	}
+
+	public void OnMenuSelected(string tag)
+	{
+		foreach (var item in Menu.MenuItems)
+		{
+			item.IsVisible = Visibility.Collapsed;
+		}
+
 		switch (tag)
 		{
-			case "HomeView":
-				SelectedView = new HomeView();
+			case "contacts":
+				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "newContact").IsVisible = Visibility.Visible;
+				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "deleteContact").IsVisible = Visibility.Visible;
 				break;
-			case "ProfileView":
-				SelectedView = new ProfileView();
+			case "chats":
+				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "newChat").IsVisible = Visibility.Visible;
+				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "newPrivateChat").IsVisible = Visibility.Visible;
+				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "deleteChat").IsVisible = Visibility.Visible;
 				break;
-			case "SettingsView":
-				SelectedView = new SettingsView();
+			case "settings":
 				break;
-			case "Logout":
+			case "logOut":
 				LogoutCommand.Execute(null);
 				break;
 		}
-	}
+
+		foreach (var item in Menu.MenuItems)
+			OnPropertyChanged(nameof(item.IsVisible));
+}
 
 	private void SendMessage()
 	{
@@ -173,8 +184,8 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 
 	private void OnLogout()
 	{
-		_tokenProvider.Logout();
-		_tokenStorage.SaveToken(null);
+		//_tokenProvider.Logout();
+		//_tokenStorage.SaveToken(null);
 		_loginWindowProvider.Show();
 	}
 
