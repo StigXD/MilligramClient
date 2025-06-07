@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Messaging;
 using MilligramClient.Common.Wpf.Base;
+using MilligramClient.Common.Wpf.Messages;
 using MilligramClient.Wpf.Messages;
 using MilligramClient.Wpf.Views.Login.Controls.Login;
 using MilligramClient.Wpf.Views.Login.Controls.Register;
@@ -44,6 +45,7 @@ public class LoginViewModel : ViewModel<LoginWindow>
 
         _messenger.Register<CloseLoginWindowMessage>(this, OnCloseLoginWindow);
         _messenger.Register<ChangeLoginWindowMessage>(this, OnChangeLoginWindow);
+        _messenger.Register<ExitLoginWindowMessage>(this, OnExitLoginWindow);
 
         LoginState = LoginState.Login;
     }
@@ -61,6 +63,10 @@ public class LoginViewModel : ViewModel<LoginWindow>
     private void OnChangeLoginWindow(ChangeLoginWindowMessage message)
     {
         ChangeLoginWindow(message.LoginState);
+    }
+    private void OnExitLoginWindow(ExitLoginWindowMessage message)
+    {
+		_messenger.Send(new RequestCloseMessage(this, null));
     }
 
     private void ChangeLoginWindow(LoginState loginState)
