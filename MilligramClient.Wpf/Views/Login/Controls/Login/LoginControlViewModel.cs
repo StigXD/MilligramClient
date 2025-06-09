@@ -11,7 +11,6 @@ using MilligramClient.Common.Extensions;
 using MilligramClient.Common.Wpf.Base;
 using MilligramClient.Common.Wpf.Commands;
 using MilligramClient.Common.Wpf.MessageBox;
-using MilligramClient.Common.Wpf.Messages;
 using MilligramClient.Domain.Dtos;
 using MilligramClient.Services.Token;
 using MilligramClient.Wpf.Messages;
@@ -35,7 +34,7 @@ public class LoginControlViewModel : ViewModel<LoginControl>, IDataErrorInfo
     private ICommand _cleanPasswordCommand;
     private ICommand _loginCommand;
     private ICommand _registerCommand;
-	private ICommand _exitCommand;
+	private ICommand _onExitCommand;
 
     public override object Header => string.Empty;
 
@@ -67,7 +66,7 @@ public class LoginControlViewModel : ViewModel<LoginControl>, IDataErrorInfo
     public ICommand CleanPasswordCommand => _cleanPasswordCommand ??= new RelayCommand(OnCleanPassword);
     public ICommand LoginCommand => _loginCommand ??= new AsyncRelayCommand(OnLoginAsync, CanLogin);
     public ICommand RegisterCommand => _registerCommand ??= new RelayCommand(OnRegister);
-	public ICommand ExitCommand => _exitCommand ??= new RelayCommand(Exit);
+	public ICommand OnExitCommand => _onExitCommand ??= new RelayCommand(OnExit);
 
     public LoginControlViewModel(
         IMessenger messenger,
@@ -132,9 +131,9 @@ public class LoginControlViewModel : ViewModel<LoginControl>, IDataErrorInfo
         ChangeLoginWindow(LoginState.Register);
     }
 
-	private void Exit()
+	private void OnExit()
 	{
-		_messenger.Send(new RequestCloseMessage(this, null));
+		_messenger.Send(new ExitLoginWindowMessage());
     }
 
     private void ChangeLoginWindow(LoginState loginState)
