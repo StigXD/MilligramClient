@@ -18,7 +18,7 @@
 				 ShowMaxRestoreButton="False"
 				 WindowStartupLocation="CenterScreen"
 				 Width="700"
-				 Height="510"
+				 Height="550"
 				 Title="{Binding Header}"
 				 d:DataContext="{DynamicResource DemoModel}">
 
@@ -56,32 +56,24 @@
                       HorizontalContentAlignment="Stretch"
                       VerticalContentAlignment="Center"
                       Margin="2,0,5,5"
-                      ItemsSource="{Binding Chats}">
+                      ItemsSource="{Binding Chats}"
+					  SelectedItem="{Binding SelectedChat}">
 
-                <ListView.ItemTemplate>
+				<ListView.ItemTemplate>
 					<DataTemplate>
-						<StackPanel Orientation="Horizontal" Margin="5">
-							<!-- Иконка чата -->
-							<!--<Image Source="/Resources/chat-icon.png" 
-                       Width="32" 
-                       Height="32" 
-                       Margin="0,0,10,0"/>-->
+						<StackPanel Margin="5">
+							<TextBlock Text="{Binding Name}" 
+									   FontWeight="Bold"
+									   Foreground="Black"/>
 
-							<!-- Информация о чате -->
-							<StackPanel>
-								<TextBlock Text="{Binding Name}" 
-                               FontWeight="Bold" 
-                               Foreground="Black"/>
+							<!--<TextBlock Text="{Binding LastMessage}" 
+									   Foreground="Gray"
+									   TextTrimming="CharacterEllipsis"
+									   MaxWidth="150"/>
 
-								<TextBlock Text="{Binding LastMessage}" 
-                               Foreground="Gray"
-                               TextTrimming="CharacterEllipsis"
-                               MaxWidth="150"/>
-
-								<TextBlock Text="{Binding LastMessageTime, StringFormat='{}{0:HH:mm}'}" 
-                               FontSize="10"
-                               Foreground="DarkGray"/>
-							</StackPanel>
+							<TextBlock Text="{Binding LastMessageAt, StringFormat='{}{0:HH:mm}'}" 
+									   FontSize="10"
+									   Foreground="DarkGray"/>-->
 						</StackPanel>
 					</DataTemplate>
 				</ListView.ItemTemplate>
@@ -90,15 +82,10 @@
 				<ListView.ItemContainerStyle>
 					<Style TargetType="ListViewItem">
 						<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-						<Setter Property="Background" Value="Transparent"/>
-						<Setter Property="BorderThickness" Value="0"/>
-						<Setter Property="Padding" Value="0"/>
+						<Setter Property="Padding" Value="5"/>
 						<Style.Triggers>
 							<Trigger Property="IsSelected" Value="True">
 								<Setter Property="Background" Value="#E0E0E0"/>
-							</Trigger>
-							<Trigger Property="IsMouseOver" Value="True">
-								<Setter Property="Background" Value="#F0F0F0"/>
 							</Trigger>
 						</Style.Triggers>
 					</Style>

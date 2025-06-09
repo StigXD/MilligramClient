@@ -8,6 +8,7 @@ using MilligramClient.Api.Clients.Chats;
 using MilligramClient.Api.Clients.SendMessage;
 using MilligramClient.Api.Token;
 using MilligramClient.Common.Wpf.Base;
+using MilligramClient.Common.Wpf.Dispatcher;
 using MilligramClient.Common.Wpf.MessageBox;
 using MilligramClient.Common.Wpf.Messages;
 using MilligramClient.Domain.Model;
@@ -25,7 +26,7 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 	private HamburgerMenuItem _selectedMenuItem;
 	private ChatDto _selectedChat;
 
-    private ICommand _contentRenderedCommand;
+	private ICommand _contentRenderedCommand;
 	private ICommand _logoutCommand;
 	private ICommand _exitCommand;
 	private ICommand _menuCommand;
@@ -39,9 +40,9 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 	private readonly ILoginWindowProvider _loginWindowProvider;
 	private readonly IChatsClient _chatsClient;
 	private readonly ISendMessageClient _sendMessageClient;
+	private readonly IDispatcherHelper _dispatcherHelper;
 
-
-    public HamburgerMenuItems Menu { get; } = new HamburgerMenuItems();
+	public HamburgerMenuItems Menu { get; } = new HamburgerMenuItems();
 	public ObservableCollection<HamburgerMenuItem> OptionsItems { get; }
 	public ObservableCollection<MessageModel> Messages { get; } = new ObservableCollection<MessageModel>();
 	public ObservableCollection<ChatDto> Chats { get; set; } = new ObservableCollection<ChatDto>();
@@ -84,8 +85,8 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 	}
 
 
-    // Команды
-    public ICommand SendMessageCommand { get; }
+	// Команды
+	public ICommand SendMessageCommand { get; }
 	public ICommand AttachFileCommand { get; }
 	public ICommand ContentRenderedCommand => _contentRenderedCommand ??= new RelayCommand(OnContentRendered);
 	public ICommand MenuCommand => _menuCommand ??= new RelayCommand<string>(OnMenuSelected);
@@ -93,14 +94,15 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 	public ICommand ExitCommand => _exitCommand ??= new RelayCommand(OnExit);
 	public ICommand SelectChatCommand => new RelayCommand(OnChatSelected);
 
-    public MainViewModel(
+	public MainViewModel(
 		IMessenger messenger,
 		ITokenStorage tokenStorage,
 		ITokenProvider tokenProvider,
 		IMessageBoxService messageBoxService,
 		ILoginWindowProvider loginWindowProvider,
-        IChatsClient chatsClient,
-		ISendMessageClient sendMessageClient)
+		IChatsClient chatsClient,
+		ISendMessageClient sendMessageClient,
+		IDispatcherHelper dispatcherHelper)
 	{
 		_messenger = messenger;
 		_tokenStorage = tokenStorage;
@@ -109,6 +111,7 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		_loginWindowProvider = loginWindowProvider;
 		_chatsClient = chatsClient;
 		_sendMessageClient = sendMessageClient;
+		_dispatcherHelper = dispatcherHelper;
 
 
 		SendMessageCommand = new RelayCommand(SendMessage, () => !string.IsNullOrWhiteSpace(NewMessageText));
@@ -134,53 +137,80 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		{
 			case "contacts":
 				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "newContact").IsVisible = Visibility.Visible;
-                Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "deleteContact").IsVisible = Visibility.Visible;
-                Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "back").IsVisible = Visibility.Visible;
-                break;
+				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "deleteContact").IsVisible = Visibility.Visible;
+				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "back").IsVisible = Visibility.Visible;
+				break;
 			case "chats":
 				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "newChat").IsVisible = Visibility.Visible;
 				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "newPrivateChat").IsVisible = Visibility.Visible;
 				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "deleteChat").IsVisible = Visibility.Visible;
-                Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "back").IsVisible = Visibility.Visible;
+				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "back").IsVisible = Visibility.Visible;
 
 				GetAllChats();
 
-                break;
+				break;
 			case "settings":
-                Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "back").IsVisible = Visibility.Visible;
+				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "back").IsVisible = Visibility.Visible;
 				break;
 			case "logOut":
 				LogoutCommand.Execute(null);
 				break;
-            case "back":
-                Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "contacts").IsVisible = Visibility.Visible;
-                Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "chats").IsVisible = Visibility.Visible;
-                Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "settings").IsVisible = Visibility.Visible;
-                break;
-
-        }
-    }
-
-	private async Task GetAllChats()
-	{
-		Chats.Clear(); // Очищаем предыдущие чаты
-		var chats = await _chatsClient.GetChatsAsync().ConfigureAwait(false);
-		foreach (var chat in chats)
-		{
-			Chats.Add(chat);
-		}
-
-		// Автовыбор первого чата, если есть
-		if (Chats.Any())
-		{
-			SelectedChat = Chats.First();
+			case "back":
+				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "contacts").IsVisible = Visibility.Visible;
+				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "chats").IsVisible = Visibility.Visible;
+				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "settings").IsVisible = Visibility.Visible;
+				break;
 		}
 	}
 
-	private void OnChatSelected()
+	private async Task GetAllChats()
+	{
+		try
+		{
+			Chats.Clear(); // Очищаем предыдущие чаты
+			Console.WriteLine("Запрос чатов...");
+			var chats = await _chatsClient.GetChatsAsync().ConfigureAwait(false);
+			Console.WriteLine($"Получено чатов: {chats?.Count() ?? 0}");
+			// Обновляем коллекцию в UI-потоке
+			_dispatcherHelper.CheckBeginInvokeOnUI(() =>
+			{
+				Chats.Clear();
+
+				if (chats != null)
+				{
+					foreach (var chat in chats)
+					{
+						Console.WriteLine($"Чат: {chat.Name}, Owner: {chat.OwnerUserId}");
+						Chats.Add(chat);
+					}
+
+					if (Chats.Any())
+					{
+						SelectedChat = Chats.First();
+						Console.WriteLine($"Выбран чат: {SelectedChat.Name}");
+					}
+					else
+					{
+						StatusMessage = "Чаты не найдены";
+					}
+				}
+				else
+				{
+					StatusMessage = "Сервер вернул пустой список чатов";
+				}
+			});
+		}
+		catch (Exception ex)
+		{
+			StatusMessage = $"Ошибка: {ex.Message}";
+			Console.WriteLine($"Ошибка при получении чатов: {ex}");
+		}
+	}
+
+    private void OnChatSelected()
 	{
 		//SelectedChat = chat;
-        // Здесь можно добавить загрузку сообщений для выбранного чата
+		// Здесь можно добавить загрузку сообщений для выбранного чата
 		// Очищаем предыдущие сообщения
 		Messages.Clear();
 
@@ -203,9 +233,9 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 			// Здесь нужно добавить код для скролла к последнему сообщению
 			// (обычно это делается через поведение или в code-behind)
 		}
-    }
+	}
 
-    private void SendMessage()
+	private void SendMessage()
 	{
 		if (string.IsNullOrWhiteSpace(NewMessageText)) return;
 
@@ -216,11 +246,11 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 			Timestamp = DateTime.Now.ToString("HH:mm")
 		});
 
-        //var sendMessage = await _testClient.GetTestStringAsync().ConfigureAwait(false);
-        //_messageBoxService.Show(testString, "Ответ от сервера");
+		//var sendMessage = await _testClient.GetTestStringAsync().ConfigureAwait(false);
+		//_messageBoxService.Show(testString, "Ответ от сервера");
 
 
-        NewMessageText = string.Empty;
+		NewMessageText = string.Empty;
 		StatusMessage = "Сообщение отправлено";
 	}
 
