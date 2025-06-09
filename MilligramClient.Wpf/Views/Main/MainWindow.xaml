@@ -55,11 +55,73 @@
             <ListView Grid.Column="1"
                       HorizontalContentAlignment="Stretch"
                       VerticalContentAlignment="Center"
-                      Margin="2,0,5,5">
+                      Margin="2,0,5,5"
+                      ItemsSource="{Binding Chats}">
+
+                <ListView.ItemTemplate>
+					<DataTemplate>
+						<StackPanel Orientation="Horizontal" Margin="5">
+							<!-- Иконка чата -->
+							<!--<Image Source="/Resources/chat-icon.png" 
+                       Width="32" 
+                       Height="32" 
+                       Margin="0,0,10,0"/>-->
+
+							<!-- Информация о чате -->
+							<StackPanel>
+								<TextBlock Text="{Binding Name}" 
+                               FontWeight="Bold" 
+                               Foreground="Black"/>
+
+								<TextBlock Text="{Binding LastMessage}" 
+                               Foreground="Gray"
+                               TextTrimming="CharacterEllipsis"
+                               MaxWidth="150"/>
+
+								<TextBlock Text="{Binding LastMessageTime, StringFormat='{}{0:HH:mm}'}" 
+                               FontSize="10"
+                               Foreground="DarkGray"/>
+							</StackPanel>
+						</StackPanel>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+
+				<!-- Стиль для выделения элементов -->
+				<ListView.ItemContainerStyle>
+					<Style TargetType="ListViewItem">
+						<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+						<Setter Property="Background" Value="Transparent"/>
+						<Setter Property="BorderThickness" Value="0"/>
+						<Setter Property="Padding" Value="0"/>
+						<Style.Triggers>
+							<Trigger Property="IsSelected" Value="True">
+								<Setter Property="Background" Value="#E0E0E0"/>
+							</Trigger>
+							<Trigger Property="IsMouseOver" Value="True">
+								<Setter Property="Background" Value="#F0F0F0"/>
+							</Trigger>
+						</Style.Triggers>
+					</Style>
+				</ListView.ItemContainerStyle>
+
+				<i:Interaction.Behaviors>
+					<behaviors:HandleFrameworkElementMouseMoveBehavior />
+				</i:Interaction.Behaviors>
 
 			</ListView>
 			<!-- Поле сообщений -->
 			<StackPanel Grid.Column="2" Orientation="Vertical">
+
+				<Border Background="#FF4081" Height="40">
+					<TextBlock Text="{Binding SelectedChat.Name}" 
+							   Foreground="White"
+							   FontSize="16"
+							   FontWeight="Bold"
+							   VerticalAlignment="Center"
+							   Margin="10,0"
+							   TextTrimming="CharacterEllipsis"/>
+				</Border>
+
 				<ScrollViewer VerticalScrollBarVisibility="Auto"
 							  Height="430"
 							  Width="450"
@@ -71,13 +133,16 @@
 									<StackPanel>
 										<TextBlock Text="{Binding Sender}" FontSize="14" FontWeight="Bold" Foreground="Black" />
 										<TextBlock Text="{Binding Text}" FontSize="14" Foreground="Black" TextWrapping="Wrap" Margin="0,5,0,0" />
-										<TextBlock Text="{Binding Timestamp}" FontSize="10" Foreground="#FFA0A0A0" HorizontalAlignment="Right" />
+										<TextBlock Text="{Binding Timestamp}" FontSize="10" Foreground="Brown" HorizontalAlignment="Right" />
 									</StackPanel>
 								</Border>
 							</DataTemplate>
 						</ItemsControl.ItemTemplate>
 					</ItemsControl>
-				</ScrollViewer>
+                    <i:Interaction.Behaviors>
+                        <behaviors:HandleFrameworkElementMouseMoveBehavior />
+                    </i:Interaction.Behaviors>
+                </ScrollViewer>
 
 				<!-- Поле ввода сообщения -->
 				<StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
@@ -100,7 +165,10 @@
 						<TextBox.InputBindings>
 							<KeyBinding Key="Enter" Command="{Binding SendMessageCommand}" />
 						</TextBox.InputBindings>
-					</TextBox>
+                            <i:Interaction.Behaviors>
+                                <behaviors:HandleFrameworkElementMouseMoveBehavior />
+                            </i:Interaction.Behaviors>
+                        </TextBox>
 
                         <Button  Grid.Column="1" Grid.Row="0"
                                  Command="{Binding AttachFileCommand}"
@@ -187,6 +255,11 @@
                     <TextBlock Text="{Binding Tag}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" />
                 </DataTemplate>
             </mah:HamburgerMenu.ContentTemplate>
+
+            <i:Interaction.Behaviors>
+                <behaviors:HandleFrameworkElementMouseMoveBehavior />
+            </i:Interaction.Behaviors>
+
         </mah:HamburgerMenu>
 
     </Grid>

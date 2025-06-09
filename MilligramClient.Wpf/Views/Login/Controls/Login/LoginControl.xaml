@@ -10,7 +10,6 @@
 			 xmlns:login="clr-namespace:MilligramClient.Wpf.Views.Login.Controls.Login"
 			 xmlns:wpfControls="clr-namespace:MilligramClient.Common.Wpf.Controls;assembly=MilligramClient.Common.Wpf"
 			 xmlns:helpers="clr-namespace:MilligramClient.Common.Wpf.Helpers;assembly=MilligramClient.Common.Wpf"
-			 xmlns:login1="clr-namespace:MilligramClient.Wpf.Views.Login"
 			 mc:Ignorable="d"
              d:DesignHeight="500"
              d:DesignWidth="450"

@@ -100,12 +100,12 @@ public class LoginControlViewModel : ViewModel<LoginControl>, IDataErrorInfo
 
     private async Task OnLoginAsync()
     {
-        //using (_executionTracker.TrackExecution())
-        //{
-        //    await LoginAsync().ConfigureAwait(false);
+        using (_executionTracker.TrackExecution())
+        {
+            await LoginAsync().ConfigureAwait(false);
 
             _messenger.Send(new CloseLoginWindowMessage());
-        //}
+        }
     }
 
     private async Task LoginAsync()
