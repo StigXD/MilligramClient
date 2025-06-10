@@ -4,7 +4,10 @@ namespace MilligramClient.Api.Clients.Contacts;
 
 public interface IContactsClient
 {
-    Task<ChatDto[]> GetContactsAsync(CancellationToken cancellationToken = default);
-    Task<ChatDto[]> CreateContactAsync(CancellationToken cancellationToken = default);
-    Task<ChatDto[]> DeleteContactsAsync(CancellationToken cancellationToken = default);
+    Task<ContactDto[]> GetContactsAsync(CancellationToken cancellationToken = default);
+    Task<ContactDto> GetContactAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<ContactDto[]> FindContactAsync(string name, CancellationToken cancellationToken = default);
+    Task<ContactDto> CreateContactAsync(ContactDto newContact, CancellationToken cancellationToken = default);
+    Task<ContactDto> UpdateContactAsync(ContactDto updatedContact, CancellationToken cancellationToken = default);
+    Task DeleteContactsAsync(Guid id, CancellationToken cancellationToken = default);
 }

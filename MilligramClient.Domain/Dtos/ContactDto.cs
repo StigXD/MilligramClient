@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace MilligramClient.Domain.Dtos;
 
-namespace MilligramClient.Domain.Dtos
+public class ContactDto
 {
-    internal class ContactDto
-    {
-    }
+	public Guid Id { get; set; }
+	public string Name { get; set; }
+	public string? AddedUserNickname { get; set; }
 }

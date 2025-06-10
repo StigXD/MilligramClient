@@ -14,35 +14,68 @@ public class ContactsClient : HttpClientBase, IContactsClient
 		_tokenProvider = tokenProvider;
 	}
 
-	public Task<ChatDto[]> GetContactsAsync(
+	public Task<ContactDto[]> GetContactsAsync(
 		CancellationToken cancellationToken = default)
 	{
 		return _tokenProvider.ExecuteWithToken(token =>
-			SendRequestAsync<ChatDto[]>(
+			SendRequestAsync<ContactDto[]>(
 				Method.Get,
 				"api/contacts",
 				token,
 				cancellationToken));
 	}
 
-	public Task<ChatDto[]> CreateContactAsync(
-		CancellationToken cancellationToken = default)
+	public Task<ContactDto> GetContactAsync(Guid id,
+											CancellationToken cancellationToken = default)
 	{
 		return _tokenProvider.ExecuteWithToken(token =>
-			SendRequestAsync<ChatDto[]>(
-				Method.Post,
-				"api/createContacts",
+			SendRequestAsync<ContactDto>(
+				Method.Get,
+				"api/contacts",
 				token,
 				cancellationToken));
 	}
 
-	public Task<ChatDto[]> DeleteContactsAsync(
-		CancellationToken cancellationToken = default)
+	public Task<ContactDto> CreateContactAsync(ContactDto newContact,
+											   CancellationToken cancellationToken = default)
 	{
 		return _tokenProvider.ExecuteWithToken(token =>
-			SendRequestAsync<ChatDto[]>(
+			SendRequestAsync<ContactDto>(
+				Method.Post,
+				"api/contacts",
+				token,
+				cancellationToken));
+	}
+
+	public Task<ContactDto> UpdateContactAsync(ContactDto updatedContact,
+											   CancellationToken cancellationToken = default)
+	{
+		return _tokenProvider.ExecuteWithToken(token =>
+			SendRequestAsync<ContactDto>(
+				Method.Put,
+				"api/contacts",
+				token,
+				cancellationToken));
+	}
+
+	public Task<ContactDto[]> FindContactAsync(string name,
+											   CancellationToken cancellationToken = default)
+	{
+		return _tokenProvider.ExecuteWithToken(token =>
+			SendRequestAsync<ContactDto[]>(
 				Method.Get,
-				"api/deleteContacts",
+				"api/contacts",
+				token,
+				cancellationToken));
+	}
+
+	public Task DeleteContactsAsync(Guid id,
+									CancellationToken cancellationToken = default)
+	{
+		return _tokenProvider.ExecuteWithToken(token =>
+			SendRequestAsync(
+				Method.Delete,
+				"api/contacts",
 				token,
 				cancellationToken));
 	}
