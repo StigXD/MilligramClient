@@ -3,6 +3,7 @@ using Grace.DependencyInjection;
 using Grace.Factory;
 using MilligramClient.Api.Clients.Account;
 using MilligramClient.Api.Clients.Chats;
+using MilligramClient.Api.Clients.Contacts;
 using MilligramClient.Api.Clients.SendMessage;
 using MilligramClient.Api.Token;
 using MilligramClient.Common;
@@ -47,6 +48,9 @@ public class Locator : ILocatorService
 
         RegisterSingleton<IChatsClient, ChatsClient>(registration,
             scope => new ChatsClient(scope.Locate<ITokenProvider>(), Constants.ServerAddress, Constants.RequestTimeout));
+
+        RegisterSingleton<IContactsClient, ContactsClient>(registration,
+            scope => new ContactsClient(scope.Locate<ITokenProvider>(), Constants.ServerAddress, Constants.RequestTimeout));
 
         RegisterSingleton<ISendMessageClient, SendMessageClient>(registration,
             scope => new SendMessageClient(scope.Locate<ITokenProvider>(), Constants.ServerAddress, Constants.RequestTimeout));

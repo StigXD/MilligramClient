@@ -1,5 +1,6 @@
 ﻿using GalaSoft.MvvmLight.Messaging;
 using MilligramClient.Api.Clients.Chats;
+using MilligramClient.Api.Clients.Contacts;
 using MilligramClient.Api.Clients.SendMessage;
 using MilligramClient.Api.Token;
 using MilligramClient.Common.Wpf.Dispatcher;
@@ -18,6 +19,7 @@ public class DemoModel : MainViewModel
 		DemoLocator.Locate<IMessageBoxService>(),
 		DemoLocator.Locate<ILoginWindowProvider>(),
 		DemoLocator.Locate<IChatsClient>(),
+		DemoLocator.Locate<IContactsClient>(),
 		DemoLocator.Locate<ISendMessageClient>(),
 		DemoLocator.Locate<IDispatcherHelper>())
 	{

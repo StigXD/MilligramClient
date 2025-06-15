@@ -12,7 +12,7 @@
 				 xmlns:behaviors="clr-namespace:MilligramClient.Common.Wpf.Behaviors;assembly=MilligramClient.Common.Wpf"
 				 xmlns:main="clr-namespace:MilligramClient.Wpf.Views.Main"
 				 xmlns:converter="clr-namespace:MahApps.Metro.IconPacks.Converter;assembly=MahApps.Metro.IconPacks.Core"
-				 xmlns:сontrols="http://metro.mahapps.com/winfx/xaml/controls" 
+				 xmlns:сontrols="http://metro.mahapps.com/winfx/xaml/controls"
 				 mc:Ignorable="d"
 				 ResizeMode="CanMinimize"
 				 ShowMaxRestoreButton="False"
@@ -44,69 +44,68 @@
 	</i:Interaction.Triggers>
 
 	<Grid>
-        <!-- Основное содержимое -->
+		<!-- Основное содержимое -->
 		<Grid>
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width ="50"/>
+				<ColumnDefinition Width="50" />
 				<ColumnDefinition Width="200" />
 				<ColumnDefinition Width="Auto" />
 			</Grid.ColumnDefinitions>
 
-            <ListView Grid.Column="1"
-                      HorizontalContentAlignment="Stretch"
-                      VerticalContentAlignment="Center"
-                      Margin="2,0,5,5"
-                      ItemsSource="{Binding Chats}"
-					  SelectedItem="{Binding SelectedChat}">
+			<Grid Grid.Column="1">
+				<!-- Список чатов -->
+				<ListView x:Name="ChatsList"
+						  ItemsSource="{Binding Chats}"
+						  SelectedItem="{Binding SelectedChat}"
+						  Visibility="{Binding MainWindowState, Converter={converters:EnumToVisibilityConverter}, ConverterParameter={x:Static main:MainWindowState.Chats}, Mode=OneWay}">
+					<!-- Шаблон элемента чата -->
+				</ListView>
 
-				<ListView.ItemTemplate>
-					<DataTemplate>
-						<StackPanel Margin="5">
-							<TextBlock Text="{Binding Name}" 
-									   FontWeight="Bold"
-									   Foreground="Black"/>
+				<!-- Список контактов -->
+				<ListView x:Name="ContactsList"
+						  ItemsSource="{Binding Contacts}"
+						  SelectedItem="{Binding SelectedContact}"
+						  Visibility="{Binding MainWindowState, Converter={converters:EnumToVisibilityConverter}, ConverterParameter={x:Static main:MainWindowState.Contacts}, Mode=OneWay}">
+					<!-- Шаблон элемента контакта -->
+					<ListView.ItemTemplate>
+						<DataTemplate>
+							<StackPanel Orientation="Horizontal" Margin="5">
+								<!-- Аватар --><!--
+								<Image Source="{Binding AvatarUrl}"
+									   Width="40"
+									   Height="40"
+									   Margin="0,0,10,0" />-->
 
-							<!--<TextBlock Text="{Binding LastMessage}" 
-									   Foreground="Gray"
-									   TextTrimming="CharacterEllipsis"
-									   MaxWidth="150"/>
-
-							<TextBlock Text="{Binding LastMessageAt, StringFormat='{}{0:HH:mm}'}" 
-									   FontSize="10"
-									   Foreground="DarkGray"/>-->
-						</StackPanel>
-					</DataTemplate>
-				</ListView.ItemTemplate>
-
-				<!-- Стиль для выделения элементов -->
-				<ListView.ItemContainerStyle>
-					<Style TargetType="ListViewItem">
-						<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-						<Setter Property="Padding" Value="5"/>
-						<Style.Triggers>
-							<Trigger Property="IsSelected" Value="True">
-								<Setter Property="Background" Value="#E0E0E0"/>
-							</Trigger>
-						</Style.Triggers>
-					</Style>
-				</ListView.ItemContainerStyle>
+								<!-- Информация о контакте -->
+								<StackPanel>
+									<TextBlock Text="{Binding Name}"
+											   FontWeight="Bold" />
+									<!--<TextBlock Text="{Binding Status}"
+											   Foreground="Gray"
+											   FontSize="12" />-->
+								</StackPanel>
+							</StackPanel>
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
 
 				<i:Interaction.Behaviors>
 					<behaviors:HandleFrameworkElementMouseMoveBehavior />
 				</i:Interaction.Behaviors>
 
-			</ListView>
+			</Grid>
+
 			<!-- Поле сообщений -->
 			<StackPanel Grid.Column="2" Orientation="Vertical">
 
 				<Border Background="#FF4081" Height="40">
-					<TextBlock Text="{Binding SelectedChat.Name}" 
+					<TextBlock Text="{Binding SelectedChat.Name}"
 							   Foreground="White"
 							   FontSize="16"
 							   FontWeight="Bold"
 							   VerticalAlignment="Center"
 							   Margin="10,0"
-							   TextTrimming="CharacterEllipsis"/>
+							   TextTrimming="CharacterEllipsis" />
 				</Border>
 
 				<ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -116,7 +115,7 @@
 					<ItemsControl ItemsSource="{Binding Messages}">
 						<ItemsControl.ItemTemplate>
 							<DataTemplate>
-								<Border Margin="5" Padding="10" BorderBrush="Black" BorderThickness="1"  CornerRadius="5">
+								<Border Margin="5" Padding="10" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
 									<StackPanel>
 										<TextBlock Text="{Binding Sender}" FontSize="14" FontWeight="Bold" Foreground="Black" />
 										<TextBlock Text="{Binding Text}" FontSize="14" Foreground="Black" TextWrapping="Wrap" Margin="0,5,0,0" />
@@ -126,58 +125,58 @@
 							</DataTemplate>
 						</ItemsControl.ItemTemplate>
 					</ItemsControl>
-                    <i:Interaction.Behaviors>
-                        <behaviors:HandleFrameworkElementMouseMoveBehavior />
-                    </i:Interaction.Behaviors>
-                </ScrollViewer>
+					<i:Interaction.Behaviors>
+						<behaviors:HandleFrameworkElementMouseMoveBehavior />
+					</i:Interaction.Behaviors>
+				</ScrollViewer>
 
 				<!-- Поле ввода сообщения -->
 				<StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="330"/>
-                            <ColumnDefinition Width="50"/>
-                            <ColumnDefinition Width="70"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition/>
-                            <RowDefinition/>
-                        </Grid.RowDefinitions>
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="330" />
+							<ColumnDefinition Width="50" />
+							<ColumnDefinition Width="70" />
+						</Grid.ColumnDefinitions>
+						<Grid.RowDefinitions>
+							<RowDefinition />
+							<RowDefinition />
+						</Grid.RowDefinitions>
 
-                        <TextBox Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Stretch"
-                             Text="{Binding NewMessageText, UpdateSourceTrigger=PropertyChanged}"
-							 VerticalContentAlignment="Center"
-							 controls:TextBoxHelper.Watermark="Введите сообщение..."
-							 Margin="5,5,5,0">
-						<TextBox.InputBindings>
-							<KeyBinding Key="Enter" Command="{Binding SendMessageCommand}" />
-						</TextBox.InputBindings>
-                            <i:Interaction.Behaviors>
-                                <behaviors:HandleFrameworkElementMouseMoveBehavior />
-                            </i:Interaction.Behaviors>
-                        </TextBox>
+						<TextBox Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Stretch"
+								 Text="{Binding NewMessageText, UpdateSourceTrigger=PropertyChanged}"
+								 VerticalContentAlignment="Center"
+								 controls:TextBoxHelper.Watermark="Введите сообщение..."
+								 Margin="5,5,5,0">
+							<TextBox.InputBindings>
+								<KeyBinding Key="Enter" Command="{Binding SendMessageCommand}" />
+							</TextBox.InputBindings>
+							<i:Interaction.Behaviors>
+								<behaviors:HandleFrameworkElementMouseMoveBehavior />
+							</i:Interaction.Behaviors>
+						</TextBox>
 
-                        <Button  Grid.Column="1" Grid.Row="0"
-                                 Command="{Binding AttachFileCommand}"
-							Style="{StaticResource MahApps.Styles.Button.Circle}"
-							Width="40"
-							Height="40"
-							Margin="0,0,5,0"
-							ToolTip="Прикрепить файл">
-						<iconPacks:PackIconMaterial Kind="Paperclip" Width="24" Height="24"/>
-					</Button>
+						<Button Grid.Column="1" Grid.Row="0"
+								Command="{Binding AttachFileCommand}"
+								Style="{StaticResource MahApps.Styles.Button.Circle}"
+								Width="40"
+								Height="40"
+								Margin="0,0,5,0"
+								ToolTip="Прикрепить файл">
+							<iconPacks:PackIconMaterial Kind="Paperclip" Width="24" Height="24" />
+						</Button>
 
-                        <Button  Grid.Column="2" Grid.Row="0"
-                                 Command="{Binding SendMessageCommand}"
-							Style="{StaticResource ChatButtonStyle}"
-							Content="SEND" />
-                        <!-- Статусная строка -->
-                        <StatusBar Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1" 
-                            Background="Transparent">
-                            <TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="Black"/>
-                        </StatusBar>
-                    </Grid>
-                </StackPanel>
+						<Button Grid.Column="2" Grid.Row="0"
+								Command="{Binding SendMessageCommand}"
+								Style="{StaticResource ChatButtonStyle}"
+								Content="SEND" />
+						<!-- Статусная строка -->
+						<StatusBar Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"
+								   Background="Transparent">
+							<TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="Black" />
+						</StatusBar>
+					</Grid>
+				</StackPanel>
 			</StackPanel>
 
 			<!--<StackPanel VerticalAlignment="Center"
@@ -201,53 +200,53 @@
 
 		</Grid>
 
-        <!-- Меню -->
+		<!-- Меню -->
 		<mah:HamburgerMenu Grid.Column="0" x:Name="HamburgerMenuControl"
-							   ItemsSource="{Binding Menu.MenuItems}"
-							   SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
-							   SelectedOptionsItem="{Binding SelectedMenuItem, Mode=TwoWay}"
-							   OptionsItemsSource="{Binding Menu.MenuOptionsItems}">
+						   ItemsSource="{Binding Menu.MenuItems}"
+						   SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
+						   SelectedOptionsItem="{Binding SelectedMenuItem, Mode=TwoWay}"
+						   OptionsItemsSource="{Binding Menu.MenuOptionsItems}">
 
 			<mah:HamburgerMenu.HamburgerMenuHeaderTemplate>
-                <DataTemplate>
-                    <TextBlock HorizontalAlignment="Center"
-								   VerticalAlignment="Center"
-								   FontSize="16"
-								   Foreground="White"
-								   Text="{Binding }" />
-                </DataTemplate>
-            </mah:HamburgerMenu.HamburgerMenuHeaderTemplate>
+				<DataTemplate>
+					<TextBlock HorizontalAlignment="Center"
+							   VerticalAlignment="Center"
+							   FontSize="16"
+							   Foreground="White"
+							   Text="{Binding }" />
+				</DataTemplate>
+			</mah:HamburgerMenu.HamburgerMenuHeaderTemplate>
 
-            <mah:HamburgerMenu.ItemTemplate>
-                <DataTemplate>
+			<mah:HamburgerMenu.ItemTemplate>
+				<DataTemplate>
 					<StackPanel Orientation="Horizontal" Visibility="{Binding IsVisible}">
 						<iconPacks:PackIconIonicons Kind="{Binding Icon}" Padding="10" Width="50" Height="50" />
-                        <TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" />
-                    </StackPanel>
-                </DataTemplate>
-            </mah:HamburgerMenu.ItemTemplate>
+						<TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" />
+					</StackPanel>
+				</DataTemplate>
+			</mah:HamburgerMenu.ItemTemplate>
 
-            <mah:HamburgerMenu.OptionsItemTemplate>
-                <DataTemplate>
+			<mah:HamburgerMenu.OptionsItemTemplate>
+				<DataTemplate>
 					<StackPanel Orientation="Horizontal" Visibility="{Binding IsVisible}">
-                        <iconPacks:PackIconIonicons Kind="{Binding Icon}" Padding="10" Width="50" Height="50" />
-                        <TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" />
-                    </StackPanel>
-                </DataTemplate>
-            </mah:HamburgerMenu.OptionsItemTemplate>
+						<iconPacks:PackIconIonicons Kind="{Binding Icon}" Padding="10" Width="50" Height="50" />
+						<TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" />
+					</StackPanel>
+				</DataTemplate>
+			</mah:HamburgerMenu.OptionsItemTemplate>
 
 
-            <mah:HamburgerMenu.ContentTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Tag}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" />
-                </DataTemplate>
-            </mah:HamburgerMenu.ContentTemplate>
+			<mah:HamburgerMenu.ContentTemplate>
+				<DataTemplate>
+					<TextBlock Text="{Binding Tag}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="16" />
+				</DataTemplate>
+			</mah:HamburgerMenu.ContentTemplate>
 
-            <i:Interaction.Behaviors>
-                <behaviors:HandleFrameworkElementMouseMoveBehavior />
-            </i:Interaction.Behaviors>
+			<i:Interaction.Behaviors>
+				<behaviors:HandleFrameworkElementMouseMoveBehavior />
+			</i:Interaction.Behaviors>
 
-        </mah:HamburgerMenu>
+		</mah:HamburgerMenu>
 
-    </Grid>
+	</Grid>
 </mah:MetroWindow>

@@ -5,6 +5,7 @@ using System.Windows.Input;
 using GalaSoft.MvvmLight.CommandWpf;
 using GalaSoft.MvvmLight.Messaging;
 using MilligramClient.Api.Clients.Chats;
+using MilligramClient.Api.Clients.Contacts;
 using MilligramClient.Api.Clients.SendMessage;
 using MilligramClient.Api.Token;
 using MilligramClient.Common.Wpf.Base;
@@ -25,11 +26,15 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 	private string _statusMessage;
 	private HamburgerMenuItem _selectedMenuItem;
 	private ChatDto _selectedChat;
+	private ContactDto _selectedContact;
+	private MainWindowState _mainWindowState = MainWindowState.Chats;
 
 	private ICommand _contentRenderedCommand;
 	private ICommand _logoutCommand;
 	private ICommand _exitCommand;
 	private ICommand _menuCommand;
+	private ICommand _sendMessageCommand;
+	private ICommand _attachFileCommand;
 
 	public override object Header => "Milligram";
 
@@ -39,6 +44,7 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 	private readonly IMessageBoxService _messageBoxService;
 	private readonly ILoginWindowProvider _loginWindowProvider;
 	private readonly IChatsClient _chatsClient;
+	private readonly IContactsClient _contactsClient;
 	private readonly ISendMessageClient _sendMessageClient;
 	private readonly IDispatcherHelper _dispatcherHelper;
 
@@ -46,6 +52,13 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 	public ObservableCollection<HamburgerMenuItem> OptionsItems { get; }
 	public ObservableCollection<MessageModel> Messages { get; } = new ObservableCollection<MessageModel>();
 	public ObservableCollection<ChatDto> Chats { get; set; } = new ObservableCollection<ChatDto>();
+	public ObservableCollection<ContactDto> Contacts { get; set; } = new ObservableCollection<ContactDto>();
+
+	public MainWindowState MainWindowState
+	{
+		get => _mainWindowState;
+		set => Set(ref _mainWindowState, value);
+	}
 
 	public string Login
 	{
@@ -84,10 +97,16 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		set => Set(ref _selectedChat, value);
 	}
 
+	public ContactDto SelectedContact
+	{
+		get => _selectedContact;
+		set => Set(ref _selectedContact, value);
+	}
+
 
 	// Команды
-	public ICommand SendMessageCommand { get; }
-	public ICommand AttachFileCommand { get; }
+	public ICommand SendMessageCommand => _sendMessageCommand ??= new RelayCommand(SendMessage);
+	public ICommand AttachFileCommand => _attachFileCommand ??= new RelayCommand(AttachFile);
 	public ICommand ContentRenderedCommand => _contentRenderedCommand ??= new RelayCommand(OnContentRendered);
 	public ICommand MenuCommand => _menuCommand ??= new RelayCommand<string>(OnMenuSelected);
 	public ICommand LogoutCommand => _logoutCommand ??= new RelayCommand(OnLogout);
@@ -101,6 +120,7 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		IMessageBoxService messageBoxService,
 		ILoginWindowProvider loginWindowProvider,
 		IChatsClient chatsClient,
+		IContactsClient contactsClient,
 		ISendMessageClient sendMessageClient,
 		IDispatcherHelper dispatcherHelper)
 	{
@@ -110,12 +130,9 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		_messageBoxService = messageBoxService;
 		_loginWindowProvider = loginWindowProvider;
 		_chatsClient = chatsClient;
+		_contactsClient = contactsClient;
 		_sendMessageClient = sendMessageClient;
 		_dispatcherHelper = dispatcherHelper;
-
-
-		SendMessageCommand = new RelayCommand(SendMessage, () => !string.IsNullOrWhiteSpace(NewMessageText));
-		AttachFileCommand = new RelayCommand(AttachFile);
 
 		// Пример сообщений (в реальном приложении будет загрузка из сервера)
 		Messages.Add(new MessageModel
@@ -139,6 +156,11 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "newContact").IsVisible = Visibility.Visible;
 				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "deleteContact").IsVisible = Visibility.Visible;
 				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "back").IsVisible = Visibility.Visible;
+
+				MainWindowState = MainWindowState.Contacts;
+				if (!Contacts.Any())
+					GetAllContacts();
+
 				break;
 			case "chats":
 				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "newChat").IsVisible = Visibility.Visible;
@@ -146,7 +168,9 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "deleteChat").IsVisible = Visibility.Visible;
 				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "back").IsVisible = Visibility.Visible;
 
-				GetAllChats();
+				MainWindowState = MainWindowState.Chats;
+				if (!Chats.Any())
+					GetAllChats();
 
 				break;
 			case "settings":
@@ -174,8 +198,6 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 			// Обновляем коллекцию в UI-потоке
 			_dispatcherHelper.CheckBeginInvokeOnUI(() =>
 			{
-				Chats.Clear();
-
 				if (chats != null)
 				{
 					foreach (var chat in chats)
@@ -207,7 +229,49 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		}
 	}
 
-    private void OnChatSelected()
+	private async Task GetAllContacts()
+	{
+		try
+		{
+			Contacts.Clear();
+			Console.WriteLine("Запрос контактов...");
+			var contacts = await _contactsClient.GetContactsAsync().ConfigureAwait(false);
+			Console.WriteLine($"Получено контактов: {contacts?.Count() ?? 0}");
+
+			_dispatcherHelper.CheckBeginInvokeOnUI(() =>
+			{
+				if (contacts != null)
+				{
+					foreach (var contact in contacts)
+					{
+						Console.WriteLine($"Контакт: {contact.Name}");
+						Contacts.Add(contact);
+					}
+
+					if (Contacts.Any())
+					{
+						SelectedContact = Contacts.First();
+						Console.WriteLine($"Выбран контакт: {SelectedContact.Name}");
+					}
+					else
+					{
+						StatusMessage = "Контакты не найдены";
+					}
+				}
+				else
+				{
+					StatusMessage = "Сервер вернул пустой список контактов";
+				}
+			});
+		}
+		catch (Exception ex)
+		{
+			StatusMessage = $"Ошибка: {ex.Message}";
+			StatusMessage = $"Ошибка загрузки контактов: {ex.Message}";
+		}
+	}
+
+	private void OnChatSelected()
 	{
 		//SelectedChat = chat;
 		// Здесь можно добавить загрузку сообщений для выбранного чата
