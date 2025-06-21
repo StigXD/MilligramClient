@@ -299,7 +299,7 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		}
 	}
 
-	private void SendMessage()
+	private async Task SendMessage()
 	{
 		if (string.IsNullOrWhiteSpace(NewMessageText)) return;
 
@@ -310,8 +310,10 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 			Timestamp = DateTime.Now.ToString("HH:mm")
 		});
 
-		//var sendMessage = await _testClient.GetTestStringAsync().ConfigureAwait(false);
-		//_messageBoxService.Show(testString, "Ответ от сервера");
+		NewMessageText.ToDto();
+
+		var sendMessage = await _chatsClient.AddMessageAsync(SelectedChat.Id).ConfigureAwait(false);
+		_messageBoxService.Show(testString, "Ответ от сервера");
 
 
 		NewMessageText = string.Empty;
