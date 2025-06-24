@@ -1,12 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using MilligramClient.Domain.Dtos;
 
-namespace MilligramClient.Domain.Extensions
+namespace MilligramClient.Domain.Extensions;
+
+public static class ContactExtensions
 {
-    public static class ContactExtensions
-    {
-    }
+	public static ContactDto ToDto(ContactModel contact)
+	{
+		return new ContactDto
+		{
+
+		}
+	}
 }

@@ -139,7 +139,7 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		{
 			Sender = "Система",
 			Text = "Добро пожаловать в чат!",
-			Timestamp = DateTime.Now.ToString("HH:mm")
+			Timestamp = DateTime.Now
 		});
 	}
 
@@ -299,25 +299,25 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		}
 	}
 
-	private async Task SendMessage()
+	private async void SendMessage()
 	{
-		if (string.IsNullOrWhiteSpace(NewMessageText)) return;
+		//if (string.IsNullOrWhiteSpace(NewMessageText)) return;
 
-		Messages.Add(new MessageModel
-		{
-			Sender = "Вы",
-			Text = NewMessageText,
-			Timestamp = DateTime.Now.ToString("HH:mm")
-		});
+		//Messages.Add(new MessageModel
+		//{
+		//	Sender = "Вы",
+		//	Text = NewMessageText,
+		//	Timestamp = DateTime.Now.ToString("HH:mm")
+		//});
 
-		NewMessageText.ToDto();
+		//NewMessageText.ToDto();
 
-		var sendMessage = await _chatsClient.AddMessageAsync(SelectedChat.Id).ConfigureAwait(false);
-		_messageBoxService.Show(testString, "Ответ от сервера");
+		//var sendMessage = await _chatsClient.AddMessageAsync(SelectedChat.Id).ConfigureAwait(false);
+		//_messageBoxService.Show(testString, "Ответ от сервера");
 
 
-		NewMessageText = string.Empty;
-		StatusMessage = "Сообщение отправлено";
+		//NewMessageText = string.Empty;
+		//StatusMessage = "Сообщение отправлено";
 	}
 
 	private void AttachFile()
