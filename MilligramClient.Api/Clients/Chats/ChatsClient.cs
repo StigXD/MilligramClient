@@ -134,9 +134,11 @@ public class ChatsClient : HttpClientBase, IChatsClient
 		return _tokenProvider.ExecuteWithToken(token =>
 			SendRequestAsync<MessageDto>(
 				Method.Post,
-				"api/chats",
-				token,
-				cancellationToken));
+				$"api/chats/{chatId}/messages",
+                token, 
+				request => request
+					.AddBody(messageDto),
+                cancellationToken));
 	}
 
 	public Task<MessageDto> UpdateMessageAsync(Guid chatId,
