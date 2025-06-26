@@ -18,7 +18,7 @@
 				 ShowMaxRestoreButton="False"
 				 WindowStartupLocation="CenterScreen"
 				 Width="700"
-				 Height="550"
+				 Height="650"
 				 Title="{Binding Header}"
 				 d:DataContext="{DynamicResource DemoModel}">
 

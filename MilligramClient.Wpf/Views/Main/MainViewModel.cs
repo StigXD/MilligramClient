@@ -16,6 +16,8 @@ using MilligramClient.Domain.Model;
 using MilligramClient.Domain.Dtos;
 using MilligramClient.Services.Token;
 using MilligramClient.Wpf.Views.Login.Logic;
+using MilligramClient.Domain.Extensions;
+using System.Threading.Tasks;
 
 namespace MilligramClient.Wpf.Views.Main;
 
@@ -35,6 +37,7 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 	private ICommand _menuCommand;
 	private ICommand _sendMessageCommand;
 	private ICommand _attachFileCommand;
+	private ICommand _getContactsCommand;
 
 	public override object Header => "Milligram";
 
@@ -105,6 +108,7 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 
 
 	// Команды
+	public ICommand GetContactsCommand => _getContactsCommand ??= new RelayCommand(GetContacts);
 	public ICommand SendMessageCommand => _sendMessageCommand ??= new RelayCommand(SendMessage);
 	public ICommand AttachFileCommand => _attachFileCommand ??= new RelayCommand(AttachFile);
 	public ICommand ContentRenderedCommand => _contentRenderedCommand ??= new RelayCommand(OnContentRendered);
@@ -141,6 +145,7 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 			Text = "Добро пожаловать в чат!",
 			Timestamp = DateTime.Now
 		});
+		GetAllContacts
 	}
 
 	public void OnMenuSelected(string tag)
@@ -299,20 +304,32 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		}
 	}
 
-	private async void SendMessage()
+	private void  SendMessage()
 	{
-		//if (string.IsNullOrWhiteSpace(NewMessageText)) return;
+		SendMessages();
+	}
+	private async Task SendMessages()
+	{
+		if (string.IsNullOrWhiteSpace(NewMessageText)) return;
 
-		//Messages.Add(new MessageModel
-		//{
-		//	Sender = "Вы",
-		//	Text = NewMessageText,
-		//	Timestamp = DateTime.Now.ToString("HH:mm")
-		//});
+		var newMessage = new MessageModel
+		{
+			Sender = "Вы",
+			Text = NewMessageText,
+			Timestamp = DateTime.Now
+		};
 
-		//NewMessageText.ToDto();
+        Messages.Add(newMessage);
 
-		//var sendMessage = await _chatsClient.AddMessageAsync(SelectedChat.Id).ConfigureAwait(false);
+		var message = new MessageDto
+		{
+			Text = NewMessageText,
+			UserNickname = SelectedChat.Name,
+			CreationTime = DateTime.UtcNow,
+			LastChangeTime = DateTime.UtcNow,
+		};
+		
+		var sendMessage = await _chatsClient.AddMessageAsync(SelectedChat.Id, message).ConfigureAwait(false);
 		//_messageBoxService.Show(testString, "Ответ от сервера");
 
 
