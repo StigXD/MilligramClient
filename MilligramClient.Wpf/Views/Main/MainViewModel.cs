@@ -17,7 +17,6 @@ using MilligramClient.Domain.Dtos;
 using MilligramClient.Services.Token;
 using MilligramClient.Wpf.Views.Login.Logic;
 using MilligramClient.Domain.Extensions;
-using System.Threading.Tasks;
 
 namespace MilligramClient.Wpf.Views.Main;
 
@@ -30,6 +29,9 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 	private ChatDto _selectedChat;
 	private ContactDto _selectedContact;
 	private MainWindowState _mainWindowState = MainWindowState.Chats;
+	private CancellationTokenSource _requestMessagesCts;
+	private DateTime _lastMessageRequestTime = DateTime.MinValue;
+
 
 	private ICommand _contentRenderedCommand;
 	private ICommand _logoutCommand;
@@ -53,7 +55,7 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 
 	public HamburgerMenuItems Menu { get; } = new HamburgerMenuItems();
 	public ObservableCollection<HamburgerMenuItem> OptionsItems { get; }
-	public ObservableCollection<MessageModel> Messages { get; } = new ObservableCollection<MessageModel>();
+	public ObservableCollection<MessageModel> Messages { get; set; } = new ObservableCollection<MessageModel>();
 	public ObservableCollection<ChatDto> Chats { get; set; } = new ObservableCollection<ChatDto>();
 	public ObservableCollection<ContactDto> Contacts { get; set; } = new ObservableCollection<ContactDto>();
 
@@ -97,7 +99,11 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 	public ChatDto SelectedChat
 	{
 		get => _selectedChat;
-		set => Set(ref _selectedChat, value);
+		set
+		{
+			Set(ref _selectedChat, value);
+			OnChatSelected();
+		}
 	}
 
 	public ContactDto SelectedContact
@@ -106,9 +112,8 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		set => Set(ref _selectedContact, value);
 	}
 
-
 	// Команды
-	public ICommand GetContactsCommand => _getContactsCommand ??= new RelayCommand(GetContacts);
+	//public ICommand GetContactsCommand => _getContactsCommand ??= new RelayCommand(GetContacts);
 	public ICommand SendMessageCommand => _sendMessageCommand ??= new RelayCommand(SendMessage);
 	public ICommand AttachFileCommand => _attachFileCommand ??= new RelayCommand(AttachFile);
 	public ICommand ContentRenderedCommand => _contentRenderedCommand ??= new RelayCommand(OnContentRendered);
@@ -142,10 +147,88 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		Messages.Add(new MessageModel
 		{
 			Sender = "Система",
-			Text = "Добро пожаловать в чат!",
+			Text = "Добро пожаловать в Milligram!",
 			Timestamp = DateTime.Now
 		});
-		GetAllContacts
+	}
+
+	private void StartRequestMessages()
+	{
+		_requestMessagesCts?.Cancel();
+		_requestMessagesCts = new CancellationTokenSource();
+
+		_lastMessageRequestTime = DateTime.MinValue;
+
+		_ = RequestMessagesAsync(_requestMessagesCts.Token);
+	}
+
+	private async Task RequestMessagesAsync(CancellationToken cancellationToken)
+	{
+		while (!cancellationToken.IsCancellationRequested)
+		{
+			try
+			{
+				if (SelectedChat == null)
+					return;
+				var newMessages = await _chatsClient.GetMessagesAsync(SelectedChat.Id, cancellationToken).ConfigureAwait(false);
+
+				_dispatcherHelper.CheckBeginInvokeOnUI(() => { UpdateMessages(newMessages); });
+
+				await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+			}
+
+			catch (OperationCanceledException)
+			{
+				return;
+			}
+
+			catch (Exception ex)
+			{
+				StatusMessage = $"Ошибка загрузки сообщений: {ex.Message}";
+				await Task.Delay(TimeSpan.FromSeconds(5), cancellationToken);
+			}
+		}
+	}
+
+	private void UpdateMessages(IEnumerable<MessageDto> newMessages)
+	{
+		var currentMessages = Messages.ToDictionary(m => m.Id);
+
+		foreach (var messageDto in newMessages)
+		{
+			if (messageDto.CreationTime <= _lastMessageRequestTime)
+				continue;
+			if (currentMessages.TryGetValue(messageDto.Id, out var existingMessage))
+			{
+				existingMessage.Text = messageDto.Text;
+				existingMessage.IsDeleted = messageDto.IsDeleted;
+				existingMessage.LastChangeTime = messageDto.LastChangeTime;
+			}
+			else
+			{
+				{
+					Messages.Add(new MessageModel
+					{
+						Id = messageDto.Id,
+						Sender = messageDto.UserNickname,
+						Text = messageDto.Text,
+						Timestamp = messageDto.CreationTime,
+						LastChangeTime = messageDto.LastChangeTime,
+						IsDeleted = messageDto.IsDeleted
+					});
+				}
+			}
+
+			if (messageDto.CreationTime > _lastMessageRequestTime)
+				_lastMessageRequestTime = messageDto.CreationTime;
+
+			var newMessageIds = new HashSet<Guid>(newMessages.Select(m => m.Id));
+			for (var i = Messages.Count - 1; i >= 0; i--)
+			{
+				if (!newMessageIds.Contains(Messages[i].Id))
+					Messages.RemoveAt(i);
+			}
+		}
 	}
 
 	public void OnMenuSelected(string tag)
@@ -278,63 +361,36 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 
 	private void OnChatSelected()
 	{
-		//SelectedChat = chat;
-		// Здесь можно добавить загрузку сообщений для выбранного чата
-		// Очищаем предыдущие сообщения
+		_requestMessagesCts?.Cancel();
 		Messages.Clear();
-
-		// Загружаем сообщения для выбранного чата
-		//var messages = await _sendMessageClient.GetChatMessagesAsync(chat.Id).ConfigureAwait(false);
-
-		//foreach (var message in messages)
-		//{
-		//	Messages.Add(new MessageModel
-		//	{
-		//		Sender = message.,
-		//		Text = message.Text,
-		//		Timestamp = message.Timestamp.ToString("HH:mm")
-		//	});
-		//}
-
-		// Автоскролл к последнему сообщению
-		if (Messages.Any())
-		{
-			// Здесь нужно добавить код для скролла к последнему сообщению
-			// (обычно это делается через поведение или в code-behind)
-		}
+		StartRequestMessages();
+		GetNewMessages();
 	}
 
-	private void  SendMessage()
+
+	private void SendMessage()
 	{
 		SendMessages();
 	}
+
 	private async Task SendMessages()
 	{
 		if (string.IsNullOrWhiteSpace(NewMessageText)) return;
 
 		var newMessage = new MessageModel
 		{
-			Sender = "Вы",
+			Sender = Login,
 			Text = NewMessageText,
 			Timestamp = DateTime.Now
 		};
 
-        Messages.Add(newMessage);
-
-		var message = new MessageDto
-		{
-			Text = NewMessageText,
-			UserNickname = SelectedChat.Name,
-			CreationTime = DateTime.UtcNow,
-			LastChangeTime = DateTime.UtcNow,
-		};
-		
-		var sendMessage = await _chatsClient.AddMessageAsync(SelectedChat.Id, message).ConfigureAwait(false);
-		//_messageBoxService.Show(testString, "Ответ от сервера");
+		_dispatcherHelper.CheckBeginInvokeOnUI(() => { Messages.Add(newMessage); });
 
 
-		//NewMessageText = string.Empty;
-		//StatusMessage = "Сообщение отправлено";
+		var sendMessage = await _chatsClient.AddMessageAsync(SelectedChat.Id, newMessage.ToDto()).ConfigureAwait(false);
+
+		NewMessageText = string.Empty;
+		StatusMessage = "Сообщение отправлено";
 	}
 
 	private void AttachFile()
@@ -347,6 +403,37 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		}
 	}
 
+	private async Task GetNewMessages()
+	{
+		if (SelectedChat == null)
+			return;
+		try
+		{
+			var messages = await _chatsClient.GetMessagesAsync(SelectedChat.Id).ConfigureAwait(false);
+			_dispatcherHelper.CheckBeginInvokeOnUI(() =>
+			{
+				foreach (var message in messages)
+				{
+					Messages.Add(new MessageModel
+					{
+						Id = message.Id,
+						Sender = message.UserNickname,
+						Text = message.Text,
+						Timestamp = message.CreationTime,
+						LastChangeTime = message.LastChangeTime,
+						IsDeleted = message.IsDeleted
+					});
+
+					if (message.CreationTime > _lastMessageRequestTime)
+						_lastMessageRequestTime = message.CreationTime;
+				}
+			});
+		}
+		catch (Exception ex)
+		{
+			StatusMessage = $"Ошибка загрузки истории сообщений: {ex.Message}";
+		}
+	}
 	private void OnExit()
 	{
 		_messenger.Send(new RequestCloseMessage(this, null));
@@ -368,6 +455,7 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 
 	public override void Cleanup()
 	{
+		_requestMessagesCts?.Cancel();
 		base.Cleanup();
 	}
 }

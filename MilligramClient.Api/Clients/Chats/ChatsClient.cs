@@ -105,13 +105,13 @@ public class ChatsClient : HttpClientBase, IChatsClient
 				cancellationToken));
 	}
 
-	public Task<MessageDto[]> GetMessagesAsync(
-		CancellationToken cancellationToken = default)
+	public Task<MessageDto[]> GetMessagesAsync(Guid chatId,
+											   CancellationToken cancellationToken = default)
 	{
 		return _tokenProvider.ExecuteWithToken(token =>
 			SendRequestAsync<MessageDto[]>(
 				Method.Get,
-				"api/chats",
+				$"api/chats/{chatId}/messages",
 				token,
 				cancellationToken));
 	}
@@ -122,7 +122,7 @@ public class ChatsClient : HttpClientBase, IChatsClient
 		return _tokenProvider.ExecuteWithToken(token =>
 			SendRequestAsync<MessageDto>(
 				Method.Get,
-				"api/chats",
+                $"api/chats/{chatId}/messages/{messageId}",
 				token,
 				cancellationToken));
 	}

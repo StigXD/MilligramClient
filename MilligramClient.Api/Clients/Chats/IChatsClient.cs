@@ -12,7 +12,7 @@ public interface IChatsClient
 	Task<UserDto[]> GetUsersAsync(CancellationToken cancellationToken = default);
 	Task<ChatDto> AddUserAsync(Guid idChat, Guid idUser, CancellationToken cancellationToken = default);
 	Task<ChatDto> DeleteUserAsync(Guid idChat, Guid idUser, CancellationToken cancellationToken = default);
-	Task<MessageDto[]> GetMessagesAsync(CancellationToken cancellationToken = default);
+	Task<MessageDto[]> GetMessagesAsync(Guid chatId, CancellationToken cancellationToken = default);
 	Task<MessageDto> GetMessageAsync(Guid chatId, Guid messageId, CancellationToken cancellationToken = default);
 	Task<MessageDto> AddMessageAsync(Guid chatId, MessageDto messageDto, CancellationToken cancellationToken = default);
 	Task<MessageDto> UpdateMessageAsync(Guid chatId, Guid messageId, MessageDto messageDto, CancellationToken cancellationToken = default);

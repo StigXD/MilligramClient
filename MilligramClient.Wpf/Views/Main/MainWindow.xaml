@@ -13,6 +13,7 @@
 				 xmlns:main="clr-namespace:MilligramClient.Wpf.Views.Main"
 				 xmlns:converter="clr-namespace:MahApps.Metro.IconPacks.Converter;assembly=MahApps.Metro.IconPacks.Core"
 				 xmlns:сontrols="http://metro.mahapps.com/winfx/xaml/controls"
+				 xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
 				 mc:Ignorable="d"
 				 ResizeMode="CanMinimize"
 				 ShowMaxRestoreButton="False"
@@ -30,6 +31,12 @@
 			<Setter Property="Padding" Value="10,5" />
 			<Setter Property="FontSize" Value="14" />
 		</Style>
+
+		<CollectionViewSource x:Key="MessagesViewSource" Source="{Binding Messages}">
+			<CollectionViewSource.SortDescriptions>
+				<componentModel:SortDescription PropertyName="Timestamp" Direction="Ascending" />
+			</CollectionViewSource.SortDescriptions>
+		</CollectionViewSource>
 
 	</controls:MetroWindow.Resources>
 
@@ -133,7 +140,7 @@
 							  Height="430"
 							  Width="450"
 							  Background="CornflowerBlue">
-					<ItemsControl ItemsSource="{Binding Messages}">
+					<ItemsControl ItemsSource="{Binding Source={StaticResource MessagesViewSource}}">
 						<ItemsControl.ItemTemplate>
 							<DataTemplate>
 								<Border Margin="5" Padding="10" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
