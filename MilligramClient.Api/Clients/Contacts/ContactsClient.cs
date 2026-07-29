@@ -1,4 +1,9 @@
+<<<<<<< HEAD
 ﻿using MilligramClient.Api.Token;
+=======
+﻿using MilligramClient.Api.Extensions;
+using MilligramClient.Api.Token;
+>>>>>>> master
 using MilligramClient.Domain.Dtos;
 using RestSharp;
 
@@ -44,15 +49,25 @@ public class ContactsClient : HttpClientBase, IContactsClient
 				Method.Post,
 				"api/contacts",
 				token,
+<<<<<<< HEAD
 				cancellationToken));
 	}
 
 	public Task<ContactDto> UpdateContactAsync(ContactDto updatedContact,
+=======
+                request => request
+                    .AddBody(newContact),
+                cancellationToken));
+	}
+
+	public Task<ContactDto> UpdateContactAsync(Guid id, ContactDto updatedContact,
+>>>>>>> master
 											   CancellationToken cancellationToken = default)
 	{
 		return _tokenProvider.ExecuteWithToken(token =>
 			SendRequestAsync<ContactDto>(
 				Method.Put,
+<<<<<<< HEAD
 				"api/contacts",
 				token,
 				cancellationToken));
@@ -67,6 +82,26 @@ public class ContactsClient : HttpClientBase, IContactsClient
 				"api/contacts",
 				token,
 				cancellationToken));
+=======
+                $"api/contacts/{id}",
+                token,
+                request => request
+                    .AddBody(updatedContact),
+				cancellationToken));
+	}
+
+	public Task<UserDto[]> SearchUsersAsync(string name,
+											   CancellationToken cancellationToken = default)
+	{
+		return _tokenProvider.ExecuteWithToken(token =>
+			SendRequestAsync<UserDto[]>(
+				Method.Get,
+                "api/contacts/search",
+				token,
+                request => request
+                    .AddQueryParameterIfNotNull("name", name),
+                cancellationToken));
+>>>>>>> master
 	}
 
 	public Task DeleteContactsAsync(Guid id,
@@ -75,7 +110,11 @@ public class ContactsClient : HttpClientBase, IContactsClient
 		return _tokenProvider.ExecuteWithToken(token =>
 			SendRequestAsync(
 				Method.Delete,
+<<<<<<< HEAD
 				"api/contacts",
+=======
+                $"api/contacts/{id}",
+>>>>>>> master
 				token,
 				cancellationToken));
 	}

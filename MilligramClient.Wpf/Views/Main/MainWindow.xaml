@@ -53,6 +53,7 @@
 	<Grid>
 		<!-- Основное содержимое -->
 		<Grid>
+<<<<<<< HEAD
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="50" />
 				<ColumnDefinition Width="200" />
@@ -61,6 +62,21 @@
 
 			<Grid Grid.Column="1">
 				<!-- Список чатов -->
+=======
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="260" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <!-- Список чатов -->
+>>>>>>> master
 				<ListView x:Name="ChatsList"
 						  ItemsSource="{Binding Chats}"
 						  SelectedItem="{Binding SelectedChat}"
@@ -88,12 +104,120 @@
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
+<<<<<<< HEAD
 
 				<!-- Список контактов -->
 				<ListView x:Name="ContactsList"
 						  ItemsSource="{Binding Contacts}"
 						  SelectedItem="{Binding SelectedContact}"
 						  Visibility="{Binding MainWindowState, Converter={converters:EnumToVisibilityConverter}, ConverterParameter={x:Static main:MainWindowState.Contacts}, Mode=OneWay}">
+=======
+                <Border Grid.Row="1"
+					Padding="5"
+					Background="{DynamicResource MahApps.Brushes.Gray10}"
+					Visibility="{Binding IsContactSearchVisible, Converter={converters:BoolToVisibilityConverter}, Mode=OneWay}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox Grid.Column="0"
+							 Text="{Binding ContactSearchName, UpdateSourceTrigger=PropertyChanged}"
+							 VerticalContentAlignment="Center"
+							 controls:TextBoxHelper.Watermark="Поиск по имени..."
+							 controls:TextBoxHelper.ClearTextButton="True">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding FindContactsCommand}" />
+                            </TextBox.InputBindings>
+                            <i:Interaction.Behaviors>
+                                <behaviors:HandleFrameworkElementMouseMoveBehavior />
+                            </i:Interaction.Behaviors>
+                        </TextBox>
+
+                        <Button Grid.Column="1"
+							Command="{Binding FindContactsCommand}"
+							Style="{StaticResource MahApps.Styles.Button.Circle}"
+							Width="30"
+							Height="30"
+							Margin="5,0,0,0"
+							ToolTip="Найти">
+                            <iconPacks:PackIconMaterial Kind="Magnify" Width="16" Height="16" />
+                        </Button>
+
+                        <Button Grid.Column="2"
+							Command="{Binding CloseContactSearchCommand}"
+							Style="{StaticResource MahApps.Styles.Button.Circle}"
+							Width="30"
+							Height="30"
+							Margin="5,0,0,0"
+							ToolTip="Закрыть поиск">
+                            <iconPacks:PackIconMaterial Kind="Close" Width="16" Height="16" />
+                        </Button>
+                    </Grid>
+                </Border>
+                <Grid Grid.Row="2"
+				  Visibility="{Binding MainWindowState, Converter={converters:EnumToVisibilityConverter}, ConverterParameter={x:Static main:MainWindowState.Contacts}, Mode=OneWay}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <controls:ProgressRing Grid.Row="0"
+								   Width="24"
+								   Height="24"
+								   Margin="0,5"
+								   IsActive="{Binding IsContactSearchInProgress, Mode=OneWay}"
+								   Visibility="{Binding IsContactSearchInProgress, Converter={converters:BoolToVisibilityConverter}, Mode=OneWay}" />
+
+                    <ListView x:Name="FoundUsersList" Grid.Row="1"
+					  MaxHeight="200"
+					  ItemsSource="{Binding FoundUsers}"
+					  SelectedItem="{Binding SelectedFoundUser}"
+					  HorizontalContentAlignment="Stretch"
+					  Visibility="{Binding IsContactSearchVisible, Converter={converters:BoolToVisibilityConverter}, Mode=OneWay}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Nickname}"
+										   FontWeight="Bold"
+										   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding Name}"
+										   FontSize="12"
+										   Foreground="Gray"
+										   TextTrimming="CharacterEllipsis"
+										   Visibility="{Binding Name, Converter={converters:StringEmptyToVisibilityConverter}, Mode=OneWay}" />
+                                    </StackPanel>
+
+                                    <Button Grid.Column="1"
+									Command="{Binding DataContext.AddContactCommand, RelativeSource={RelativeSource AncestorType=ListView}, Mode=OneWay}"
+									CommandParameter="{Binding}"
+									Style="{StaticResource MahApps.Styles.Button.Circle}"
+									Width="28"
+									Height="28"
+									ToolTip="Добавить в контакты">
+                                        <iconPacks:PackIconMaterial Kind="AccountPlus" Width="14" Height="14" />
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+
+                    <!-- Список контактов -->
+                <ListView x:Name="ContactsList" Grid.Row="2"
+						  ItemsSource="{Binding Contacts}"
+						  SelectedItem="{Binding SelectedContact}"
+						  HorizontalContentAlignment="Stretch">
+>>>>>>> master
 					<!-- Шаблон элемента контакта -->
 					<ListView.ItemTemplate>
 						<DataTemplate>
@@ -105,6 +229,7 @@
 									   Margin="0,0,10,0" />-->
 
 								<!-- Информация о контакте -->
+<<<<<<< HEAD
 								<StackPanel>
 									<TextBlock Text="{Binding Name}"
 											   FontWeight="Bold" />
@@ -118,6 +243,25 @@
 				</ListView>
 
 				<i:Interaction.Behaviors>
+=======
+                                <StackPanel>
+                                    <TextBlock Text="{Binding AddedUserNickname}"
+									   FontWeight="Bold"
+									   TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Name}"
+									   FontSize="12"
+									   Foreground="Gray"
+									   TextTrimming="CharacterEllipsis"
+									   Visibility="{Binding Name, Converter={converters:StringEmptyToVisibilityConverter}, Mode=OneWay}" />
+                                </StackPanel>
+                            </StackPanel>
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
+                </Grid>
+
+                <i:Interaction.Behaviors>
+>>>>>>> master
 					<behaviors:HandleFrameworkElementMouseMoveBehavior />
 				</i:Interaction.Behaviors>
 
