@@ -1,28 +1,9 @@
-<<<<<<< HEAD
-﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Windows;
-using System.Windows.Input;
-using GalaSoft.MvvmLight.CommandWpf;
-=======
 ﻿using GalaSoft.MvvmLight.CommandWpf;
->>>>>>> master
 using GalaSoft.MvvmLight.Messaging;
 using MilligramClient.Api.Clients.Chats;
 using MilligramClient.Api.Clients.Contacts;
 using MilligramClient.Api.Clients.SendMessage;
 using MilligramClient.Api.Token;
-<<<<<<< HEAD
-using MilligramClient.Common.Wpf.Base;
-using MilligramClient.Common.Wpf.Dispatcher;
-using MilligramClient.Common.Wpf.MessageBox;
-using MilligramClient.Common.Wpf.Messages;
-using MilligramClient.Domain.Model;
-using MilligramClient.Domain.Dtos;
-using MilligramClient.Services.Token;
-using MilligramClient.Wpf.Views.Login.Logic;
-using MilligramClient.Domain.Extensions;
-=======
 using MilligramClient.Common.Extensions;
 using MilligramClient.Common.Wpf.Base;
 using MilligramClient.Common.Wpf.Commands;
@@ -38,7 +19,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
->>>>>>> master
 
 namespace MilligramClient.Wpf.Views.Main;
 
@@ -50,16 +30,12 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 	private HamburgerMenuItem _selectedMenuItem;
 	private ChatDto _selectedChat;
 	private ContactDto _selectedContact;
-<<<<<<< HEAD
-	private MainWindowState _mainWindowState = MainWindowState.Chats;
-=======
     private UserDto _selectedFoundUser;
     private string _contactSearchName;
     private bool _isContactSearchVisible;
     private bool _isContactSearchInProgress;
     private MainWindowState _mainWindowState = MainWindowState.Chats;
->>>>>>> master
-	private CancellationTokenSource _requestMessagesCts;
+    private CancellationTokenSource _requestMessagesCts;
 	private DateTime _lastMessageRequestTime = DateTime.MinValue;
 
 
@@ -70,17 +46,12 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 	private ICommand _sendMessageCommand;
 	private ICommand _attachFileCommand;
 	private ICommand _getContactsCommand;
-<<<<<<< HEAD
-
-	public override object Header => "Milligram";
-=======
     private ICommand _findContactsCommand;
     private ICommand _addContactCommand;
     private ICommand _deleteContactCommand;
     private ICommand _closeContactSearchCommand;
 
     public override object Header => "Milligram";
->>>>>>> master
 
 	private readonly IMessenger _messenger;
 	private readonly ITokenStorage _tokenStorage;
@@ -97,14 +68,9 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 	public ObservableCollection<MessageModel> Messages { get; set; } = new ObservableCollection<MessageModel>();
 	public ObservableCollection<ChatDto> Chats { get; set; } = new ObservableCollection<ChatDto>();
 	public ObservableCollection<ContactDto> Contacts { get; set; } = new ObservableCollection<ContactDto>();
-<<<<<<< HEAD
-
-	public MainWindowState MainWindowState
-=======
     public ObservableCollection<UserDto> FoundUsers { get; } = new ObservableCollection<UserDto>();
 
     public MainWindowState MainWindowState
->>>>>>> master
 	{
 		get => _mainWindowState;
 		set => Set(ref _mainWindowState, value);
@@ -156,12 +122,6 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		get => _selectedContact;
 		set => Set(ref _selectedContact, value);
 	}
-<<<<<<< HEAD
-
-	// Команды
-	//public ICommand GetContactsCommand => _getContactsCommand ??= new RelayCommand(GetContacts);
-	public ICommand SendMessageCommand => _sendMessageCommand ??= new RelayCommand(SendMessage);
-=======
     public UserDto SelectedFoundUser
     {
         get => _selectedFoundUser;
@@ -189,24 +149,18 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
     // Команды
     //public ICommand GetContactsCommand => _getContactsCommand ??= new RelayCommand(GetContacts);
     public ICommand SendMessageCommand => _sendMessageCommand ??= new RelayCommand(SendMessage);
->>>>>>> master
 	public ICommand AttachFileCommand => _attachFileCommand ??= new RelayCommand(AttachFile);
 	public ICommand ContentRenderedCommand => _contentRenderedCommand ??= new RelayCommand(OnContentRendered);
 	public ICommand MenuCommand => _menuCommand ??= new RelayCommand<string>(OnMenuSelected);
 	public ICommand LogoutCommand => _logoutCommand ??= new RelayCommand(OnLogout);
 	public ICommand ExitCommand => _exitCommand ??= new RelayCommand(OnExit);
 	public ICommand SelectChatCommand => new RelayCommand(OnChatSelected);
-<<<<<<< HEAD
-
-	public MainViewModel(
-=======
     public ICommand FindContactsCommand => _findContactsCommand ??= new AsyncRelayCommand(SearchUsersAsync, CanSearchUsers);
     public ICommand AddContactCommand => _addContactCommand ??= new AsyncRelayCommand<UserDto>(AddContactAsync);
     public ICommand DeleteContactCommand => _deleteContactCommand ??= new AsyncRelayCommand(DeleteSelectedContactAsync);
     public ICommand CloseContactSearchCommand => _closeContactSearchCommand ??= new RelayCommand(CloseContactSearch);
 
     public MainViewModel(
->>>>>>> master
 		IMessenger messenger,
 		ITokenStorage tokenStorage,
 		ITokenProvider tokenProvider,
@@ -291,7 +245,7 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 			else
 			{
 				{
-					Messages.Add(new MessageModel
+                    Messages.Add(new MessageModel
 					{
 						Id = messageDto.Id,
 						Sender = messageDto.UserNickname,
@@ -329,14 +283,6 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "deleteContact").IsVisible = Visibility.Visible;
 				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "back").IsVisible = Visibility.Visible;
 
-<<<<<<< HEAD
-				MainWindowState = MainWindowState.Contacts;
-				if (!Contacts.Any())
-					GetAllContacts();
-
-				break;
-			case "chats":
-=======
                 MainWindowState = MainWindowState.Contacts;
                 CloseContactSearch();
                 if (!Contacts.Any())
@@ -363,7 +309,6 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 
                 break;
             case "chats":
->>>>>>> master
 				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "newChat").IsVisible = Visibility.Visible;
 				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "newPrivateChat").IsVisible = Visibility.Visible;
 				Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "deleteChat").IsVisible = Visibility.Visible;
@@ -371,7 +316,7 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 
 				MainWindowState = MainWindowState.Chats;
 				if (!Chats.Any())
-					GetAllChats();
+                    GetAllChats();
 
 				break;
 			case "settings":
@@ -472,9 +417,6 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 		}
 	}
 
-<<<<<<< HEAD
-	private void OnChatSelected()
-=======
     private void OpenContactSearch()
     {
         ContactSearchName = string.Empty;
@@ -587,7 +529,6 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
     }
 
     private void OnChatSelected()
->>>>>>> master
 	{
 		_requestMessagesCts?.Cancel();
 		Messages.Clear();
