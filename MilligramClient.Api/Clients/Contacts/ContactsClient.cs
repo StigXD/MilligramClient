@@ -1,5 +1,7 @@
-﻿using MilligramClient.Api.Token;
+﻿using MilligramClient.Api.Extensions;
+using MilligramClient.Api.Token;
 using MilligramClient.Domain.Dtos;
+
 using RestSharp;
 
 namespace MilligramClient.Api.Clients.Contacts;
@@ -36,18 +38,20 @@ public class ContactsClient : HttpClientBase, IContactsClient
 				cancellationToken));
 	}
 
-	public Task<ContactDto> CreateContactAsync(ContactDto newContact,
-											   CancellationToken cancellationToken = default)
-	{
-		return _tokenProvider.ExecuteWithToken(token =>
-			SendRequestAsync<ContactDto>(
-				Method.Post,
-				"api/contacts",
-				token,
-				cancellationToken));
-	}
+    public Task<ContactDto> CreateContactAsync(CreateContactDto newContact,
+                                               CancellationToken cancellationToken = default)
+    {
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<ContactDto>(
+                Method.Post,
+                "api/contacts",
+                token,
+                request => request
+                    .AddBody(newContact),
+                cancellationToken));
+    }
 
-	public Task<ContactDto> UpdateContactAsync(ContactDto updatedContact,
+    public Task<ContactDto> UpdateContactAsync(ContactDto updatedContact,
 											   CancellationToken cancellationToken = default)
 	{
 		return _tokenProvider.ExecuteWithToken(token =>
@@ -58,16 +62,18 @@ public class ContactsClient : HttpClientBase, IContactsClient
 				cancellationToken));
 	}
 
-	public Task<ContactDto[]> FindContactAsync(string name,
+	public Task<UserDto[]> SearchUsersAsync(string name,
 											   CancellationToken cancellationToken = default)
 	{
 		return _tokenProvider.ExecuteWithToken(token =>
-			SendRequestAsync<ContactDto[]>(
+			SendRequestAsync<UserDto[]>(
 				Method.Get,
-				"api/contacts",
-				token,
-				cancellationToken));
-	}
+                "api/contacts/search",
+                token,
+                request => request
+                    .AddQueryParameterIfNotNull("name", name),
+                cancellationToken));
+    }
 
 	public Task DeleteContactsAsync(Guid id,
 									CancellationToken cancellationToken = default)

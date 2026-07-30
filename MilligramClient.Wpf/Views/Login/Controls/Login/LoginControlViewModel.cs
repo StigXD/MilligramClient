@@ -182,8 +182,8 @@ public class LoginControlViewModel : ViewModel<LoginControl>, IDataErrorInfo
                     if (string.IsNullOrEmpty(Password))
                         break;
 
-                    if (Password.Length < 5)
-                        error = "Пароль должен состоять минимум из 5 символов";
+                    if (Password.Length < 8)
+                        error = "Пароль должен состоять минимум из 8 символов";
 
                     break;
                 }

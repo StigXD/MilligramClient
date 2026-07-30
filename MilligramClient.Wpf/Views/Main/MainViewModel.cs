@@ -453,6 +453,10 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
                 LogoutCommand.Execute(null);
                 break;
 
+            case "exit":
+                _messenger.Send(new RequestCloseMessage(this, null));
+                break;
+
             case "back":
                 Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "contacts").IsVisible = Visibility.Visible;
                 Menu.MenuItems.FirstOrDefault(i => i.Tag.ToString() == "chats").IsVisible = Visibility.Visible;
@@ -547,37 +551,37 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 
     private async Task SearchChatUsersAsync()
     {
-        //var name = ChatUserSearchName;
-        //if (name.IsNullOrWhiteSpace())
-        //    return;
+        var name = ChatUserSearchName;
+        if (name.IsNullOrWhiteSpace())
+            return;
 
-        //IsChatUsersSearchInProgress = true;
-        //try
-        //{
-        //    var foundUsers = await _contactsClient.SearchUsersAsync(name.Trim()).ConfigureAwait(false);
+        IsChatUsersSearchInProgress = true;
+        try
+        {
+            var foundUsers = await _contactsClient.SearchUsersAsync(name.Trim()).ConfigureAwait(false);
 
-        //    _dispatcherHelper.CheckBeginInvokeOnUI(() =>
-        //    {
-        //        FoundChatUsers.Clear();
+            _dispatcherHelper.CheckBeginInvokeOnUI(() =>
+            {
+                FoundChatUsers.Clear();
 
-        //        var chatUserIds = ChatUsers.Select(user => user.Id).ToHashSet();
+                var chatUserIds = ChatUsers.Select(user => user.Id).ToHashSet();
 
-        //        foreach (var user in foundUsers.EmptyIfNull().Where(user => !chatUserIds.Contains(user.Id)))
-        //            FoundChatUsers.Add(user);
+                foreach (var user in foundUsers.EmptyIfNull().Where(user => !chatUserIds.Contains(user.Id)))
+                    FoundChatUsers.Add(user);
 
-        //        StatusMessage = FoundChatUsers.Any()
-        //            ? $"Найдено пользователей: {FoundChatUsers.Count}"
-        //            : $"Пользователи по запросу \"{name}\" не найдены";
-        //    });
-        //}
-        //catch (Exception exception)
-        //{
-        //    StatusMessage = $"Ошибка поиска пользователей: {exception.Message}";
-        //}
-        //finally
-        //{
-        //    IsChatUsersSearchInProgress = false;
-        //}
+                StatusMessage = FoundChatUsers.Any()
+                    ? $"Найдено пользователей: {FoundChatUsers.Count}"
+                    : $"Пользователи по запросу \"{name}\" не найдены";
+            });
+        }
+        catch (Exception exception)
+        {
+            StatusMessage = $"Ошибка поиска пользователей: {exception.Message}";
+        }
+        finally
+        {
+            IsChatUsersSearchInProgress = false;
+        }
     }
 
     private async Task AddUserToChatAsync(UserDto? user)
@@ -641,35 +645,35 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 
     private async Task CreatePrivateChatAsync()
     {
-        //var contact = SelectedContact;
-        //if (contact == null)
-        //{
-        //    StatusMessage = "Выберите контакт для личного чата";
-        //    return;
-        //}
+        var contact = SelectedContact;
+        if (contact == null)
+        {
+            StatusMessage = "Выберите контакт для личного чата";
+            return;
+        }
 
-        //try
-        //{
-        //    var foundUsers = await _contactsClient.SearchUsersAsync(contact.AddedUserNickname).ConfigureAwait(false);
-        //    var user = foundUsers.EmptyIfNull()
-        //        .FirstOrDefault(foundUser => foundUser.Nickname.IsEquals(contact.AddedUserNickname));
+        try
+        {
+            var foundUsers = await _contactsClient.SearchUsersAsync(contact.AddedUserNickname).ConfigureAwait(false);
+            var user = foundUsers.EmptyIfNull()
+                .FirstOrDefault(foundUser => foundUser.Nickname.IsEquals(contact.AddedUserNickname));
 
-        //    if (user == null)
-        //    {
-        //        StatusMessage = $"Не найден пользователь {contact.AddedUserNickname}";
-        //        return;
-        //    }
+            if (user == null)
+            {
+                StatusMessage = $"Не найден пользователь {contact.AddedUserNickname}";
+                return;
+            }
 
-        //    var chatName = contact.Name.IsNullOrWhiteSpace()
-        //        ? contact.AddedUserNickname
-        //        : contact.Name!;
+            var chatName = contact.Name.IsNullOrWhiteSpace()
+                ? contact.AddedUserNickname
+                : contact.Name!;
 
-        //    await CreateChatAsync(chatName, new[] { user.Id }).ConfigureAwait(false);
-        //}
-        //catch (Exception exception)
-        //{
-        //    StatusMessage = $"Ошибка создания личного чата: {exception.Message}";
-        //}
+            await CreateChatAsync(chatName, new[] { user.Id }).ConfigureAwait(false);
+        }
+        catch (Exception exception)
+        {
+            StatusMessage = $"Ошибка создания личного чата: {exception.Message}";
+        }
     }
 
     /// <summary>
@@ -678,33 +682,33 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
     /// </summary>
     private async Task CreateChatAsync(string name, IReadOnlyCollection<Guid> participantIds)
     {
-        //IsChatOperationInProgress = true;
-        //try
-        //{
-        //    var currentUserId = _tokenProvider.GetUserIdFromToken();
-        //    var createdChat = await _chatsClient
-        //        .CreateChatAsync(new ChatDto { Name = name, OwnerUserId = currentUserId })
-        //        .ConfigureAwait(false);
+        IsChatOperationInProgress = true;
+        try
+        {
+            var currentUserId = _tokenProvider.GetUserIdFromToken();
+            var createdChat = await _chatsClient
+                .CreateChatAsync(new ChatDto { Name = name, OwnerUserId = currentUserId })
+                .ConfigureAwait(false);
 
-        //    foreach (var userId in participantIds.Append(currentUserId).Distinct())
-        //        await _chatsClient.AddUserAsync(createdChat.Id, userId).ConfigureAwait(false);
+            foreach (var userId in participantIds.Append(currentUserId).Distinct())
+                await _chatsClient.AddUserAsync(createdChat.Id, userId).ConfigureAwait(false);
 
-        //    _dispatcherHelper.CheckBeginInvokeOnUI(() =>
-        //    {
-        //        Chats.Add(createdChat);
-        //        CloseChatSearch();
-        //        SelectedChat = createdChat;
-        //        StatusMessage = $"Создан чат {createdChat.Name}";
-        //    });
-        //}
-        //catch (Exception exception)
-        //{
-        //    StatusMessage = $"Ошибка создания чата: {exception.Message}";
-        //}
-        //finally
-        //{
-        //    IsChatOperationInProgress = false;
-        //}
+            _dispatcherHelper.CheckBeginInvokeOnUI(() =>
+            {
+                Chats.Add(createdChat);
+                CloseChatSearch();
+                SelectedChat = createdChat;
+                StatusMessage = $"Создан чат {createdChat.Name}";
+            });
+        }
+        catch (Exception exception)
+        {
+            StatusMessage = $"Ошибка создания чата: {exception.Message}";
+        }
+        finally
+        {
+            IsChatOperationInProgress = false;
+        }
     }
 
     private async Task DeleteSelectedChatAsync()
@@ -815,66 +819,66 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 
     private async Task SearchUsersAsync()
     {
-        //var name = ContactSearchName;
-        //if (name.IsNullOrWhiteSpace())
-        //    return;
+        var name = ContactSearchName;
+        if (name.IsNullOrWhiteSpace())
+            return;
 
-        //IsContactSearchInProgress = true;
-        //try
-        //{
-        //    var foundUsers = await _contactsClient.SearchUsersAsync(name.Trim()).ConfigureAwait(false);
+        IsContactSearchInProgress = true;
+        try
+        {
+            var foundUsers = await _contactsClient.SearchUsersAsync(name.Trim()).ConfigureAwait(false);
 
-        //    _dispatcherHelper.CheckBeginInvokeOnUI(() =>
-        //    {
-        //        FoundUsers.Clear();
+            _dispatcherHelper.CheckBeginInvokeOnUI(() =>
+            {
+                FoundUsers.Clear();
 
-        //        foreach (var user in foundUsers.EmptyIfNull())
-        //            FoundUsers.Add(user);
+                foreach (var user in foundUsers.EmptyIfNull())
+                    FoundUsers.Add(user);
 
-        //        StatusMessage = FoundUsers.Any()
-        //            ? $"Найдено пользователей: {FoundUsers.Count}"
-        //            : $"Пользователи по запросу \"{name}\" не найдены";
-        //    });
-        //}
-        //catch (Exception exception)
-        //{
-        //    StatusMessage = $"Ошибка поиска пользователей: {exception.Message}";
-        //}
-        //finally
-        //{
-        //    IsContactSearchInProgress = false;
-        //}
+                StatusMessage = FoundUsers.Any()
+                    ? $"Найдено пользователей: {FoundUsers.Count}"
+                    : $"Пользователи по запросу \"{name}\" не найдены";
+            });
+        }
+        catch (Exception exception)
+        {
+            StatusMessage = $"Ошибка поиска пользователей: {exception.Message}";
+        }
+        finally
+        {
+            IsContactSearchInProgress = false;
+        }
     }
 
     private async Task AddContactAsync(UserDto? user)
     {
-        //user ??= SelectedFoundUser;
-        //if (user == null)
-        //    return;
+        user ??= SelectedFoundUser;
+        if (user == null)
+            return;
 
-        //if (Contacts.Any(contact => contact.AddedUserNickname.IsEquals(user.Nickname)))
-        //{
-        //    StatusMessage = $"{user.Nickname} уже есть в контактах";
-        //    return;
-        //}
+        if (Contacts.Any(contact => contact.AddedUserNickname.IsEquals(user.Nickname)))
+        {
+            StatusMessage = $"{user.Nickname} уже есть в контактах";
+            return;
+        }
 
-        //try
-        //{
-        //    var createContactDto = new CreateContactDto { Name = user.Name, AddedUserId = user.Id };
-        //    var createdContact = await _contactsClient.CreateContactAsync(createContactDto).ConfigureAwait(false);
+        try
+        {
+            var createContactDto = new CreateContactDto { Name = user.Name, AddedUserId = user.Id };
+            var createdContact = await _contactsClient.CreateContactAsync(createContactDto).ConfigureAwait(false);
 
-        //    _dispatcherHelper.CheckBeginInvokeOnUI(() =>
-        //    {
-        //        Contacts.Add(createdContact);
-        //        SelectedContact = createdContact;
-        //        FoundUsers.Remove(user);
-        //        StatusMessage = $"Контакт {user.Nickname} добавлен";
-        //    });
-        //}
-        //catch (Exception exception)
-        //{
-        //    StatusMessage = $"Ошибка добавления контакта: {exception.Message}";
-        //}
+            _dispatcherHelper.CheckBeginInvokeOnUI(() =>
+            {
+                Contacts.Add(createdContact);
+                SelectedContact = createdContact;
+                FoundUsers.Remove(user);
+                StatusMessage = $"Контакт {user.Nickname} добавлен";
+            });
+        }
+        catch (Exception exception)
+        {
+            StatusMessage = $"Ошибка добавления контакта: {exception.Message}";
+        }
     }
 
     private async Task DeleteSelectedContactAsync()
@@ -911,7 +915,6 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
         _requestMessagesCts?.Cancel();
         Messages.Clear();
         StartRequestMessages();
-        //GetNewMessages();
     }
 
 

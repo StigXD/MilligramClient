@@ -10,6 +10,7 @@ public interface ITokenProvider
 
 	string GetToken();
 	string GetLoginFromToken();
-
+    Guid GetUserIdFromToken();
+    
 	Task<TResult> ExecuteWithToken<TResult>(Func<string, Task<TResult>> action);
 }
