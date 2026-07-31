@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Data;
@@ -245,8 +245,8 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 
     public ICommand SendMessageCommand => _sendMessageCommand ??= new RelayCommand(SendMessage);
     public ICommand AttachFileCommand => _attachFileCommand ??= new RelayCommand(AttachFile);
-    //public ICommand ToggleEmojiPickerCommand => _toggleEmojiPickerCommand ??= new RelayCommand(ToggleEmojiPicker);
-    //public ICommand InsertEmojiCommand => _insertEmojiCommand ??= new RelayCommand<EmojiItem>(InsertEmoji);
+    public ICommand ToggleEmojiPickerCommand => _toggleEmojiPickerCommand ??= new RelayCommand(ToggleEmojiPicker);
+    public ICommand InsertEmojiCommand => _insertEmojiCommand ??= new RelayCommand<EmojiItem>(InsertEmoji);
 
     public MainViewModel(
         IMessenger messenger,

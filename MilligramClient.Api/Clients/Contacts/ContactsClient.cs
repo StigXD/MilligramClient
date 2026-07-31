@@ -38,18 +38,18 @@ public class ContactsClient : HttpClientBase, IContactsClient
 				cancellationToken));
 	}
 
-    public Task<ContactDto> CreateContactAsync(CreateContactDto newContact,
-                                               CancellationToken cancellationToken = default)
-    {
-        return _tokenProvider.ExecuteWithToken(token =>
-            SendRequestAsync<ContactDto>(
-                Method.Post,
-                "api/contacts",
-                token,
+	public Task<ContactDto> CreateContactAsync(ContactDto newContact,
+											   CancellationToken cancellationToken = default)
+	{
+		return _tokenProvider.ExecuteWithToken(token =>
+			SendRequestAsync<ContactDto>(
+				Method.Post,
+				"api/contacts",
+				token,
                 request => request
                     .AddBody(newContact),
                 cancellationToken));
-    }
+	}
 
     public Task<ContactDto> UpdateContactAsync(ContactDto updatedContact,
 											   CancellationToken cancellationToken = default)
@@ -69,11 +69,11 @@ public class ContactsClient : HttpClientBase, IContactsClient
 			SendRequestAsync<UserDto[]>(
 				Method.Get,
                 "api/contacts/search",
-                token,
+				token,
                 request => request
                     .AddQueryParameterIfNotNull("name", name),
                 cancellationToken));
-    }
+	}
 
 	public Task DeleteContactsAsync(Guid id,
 									CancellationToken cancellationToken = default)
@@ -81,7 +81,7 @@ public class ContactsClient : HttpClientBase, IContactsClient
 		return _tokenProvider.ExecuteWithToken(token =>
 			SendRequestAsync(
 				Method.Delete,
-				"api/contacts",
+				$"api/contacts/{id}",
 				token,
 				cancellationToken));
 	}
