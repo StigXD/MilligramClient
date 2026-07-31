@@ -65,6 +65,24 @@ public class SlidingTokenProvider : ITokenProvider
             ?.Value ?? string.Empty;
     }
 
+    public Guid GetUserIdFromToken()
+    {
+        var token = _token;
+
+        if (token == null)
+            throw new InvalidOperationException("You must login before using the token");
+
+        var jwtSecurityToken = _jwtSecurityTokenHandler.ReadJwtToken(token);
+
+        var userId = jwtSecurityToken.Claims
+            .FirstOrDefault(claim => claim.Type == ClaimTypes.NameIdentifier)
+            ?.Value;
+
+        return Guid.TryParse(userId, out var parsedUserId)
+            ? parsedUserId
+            : throw new InvalidOperationException("Token does not contain user id");
+    }
+
     public async Task<TResult> ExecuteWithToken<TResult>(Func<string, Task<TResult>> action)
     {
         return await action(await GetTokenAsync().ConfigureAwait(false)).ConfigureAwait(false);

@@ -1,10 +1,7 @@
-<<<<<<< HEAD
-﻿using MilligramClient.Api.Token;
-=======
 ﻿using MilligramClient.Api.Extensions;
 using MilligramClient.Api.Token;
->>>>>>> master
 using MilligramClient.Domain.Dtos;
+
 using RestSharp;
 
 namespace MilligramClient.Api.Clients.Contacts;
@@ -49,44 +46,19 @@ public class ContactsClient : HttpClientBase, IContactsClient
 				Method.Post,
 				"api/contacts",
 				token,
-<<<<<<< HEAD
-				cancellationToken));
-	}
-
-	public Task<ContactDto> UpdateContactAsync(ContactDto updatedContact,
-=======
                 request => request
                     .AddBody(newContact),
                 cancellationToken));
 	}
 
-	public Task<ContactDto> UpdateContactAsync(Guid id, ContactDto updatedContact,
->>>>>>> master
+    public Task<ContactDto> UpdateContactAsync(ContactDto updatedContact,
 											   CancellationToken cancellationToken = default)
 	{
 		return _tokenProvider.ExecuteWithToken(token =>
 			SendRequestAsync<ContactDto>(
 				Method.Put,
-<<<<<<< HEAD
 				"api/contacts",
 				token,
-				cancellationToken));
-	}
-
-	public Task<ContactDto[]> FindContactAsync(string name,
-											   CancellationToken cancellationToken = default)
-	{
-		return _tokenProvider.ExecuteWithToken(token =>
-			SendRequestAsync<ContactDto[]>(
-				Method.Get,
-				"api/contacts",
-				token,
-				cancellationToken));
-=======
-                $"api/contacts/{id}",
-                token,
-                request => request
-                    .AddBody(updatedContact),
 				cancellationToken));
 	}
 
@@ -101,7 +73,6 @@ public class ContactsClient : HttpClientBase, IContactsClient
                 request => request
                     .AddQueryParameterIfNotNull("name", name),
                 cancellationToken));
->>>>>>> master
 	}
 
 	public Task DeleteContactsAsync(Guid id,
@@ -110,11 +81,7 @@ public class ContactsClient : HttpClientBase, IContactsClient
 		return _tokenProvider.ExecuteWithToken(token =>
 			SendRequestAsync(
 				Method.Delete,
-<<<<<<< HEAD
-				"api/contacts",
-=======
-                $"api/contacts/{id}",
->>>>>>> master
+				$"api/contacts/{id}",
 				token,
 				cancellationToken));
 	}
