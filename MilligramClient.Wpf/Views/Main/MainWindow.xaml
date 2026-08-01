@@ -11,15 +11,18 @@
 				 xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
 				 xmlns:behaviors="clr-namespace:MilligramClient.Common.Wpf.Behaviors;assembly=MilligramClient.Common.Wpf"
 				 xmlns:main="clr-namespace:MilligramClient.Wpf.Views.Main"
+				 xmlns:gif="clr-namespace:WpfAnimatedGif;assembly=WpfAnimatedGif"
 				 xmlns:converter="clr-namespace:MahApps.Metro.IconPacks.Converter;assembly=MahApps.Metro.IconPacks.Core"
 				 xmlns:сontrols="http://metro.mahapps.com/winfx/xaml/controls"
-				 xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
-				 mc:Ignorable="d"
-				 ResizeMode="CanMinimize"
-				 ShowMaxRestoreButton="False"
+				 xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase" xmlns:emojiControls="clr-namespace:MilligramClient.Wpf.Controls"
+                 mc:Ignorable="d"
+				 ResizeMode="CanResize"
+				 ShowMaxRestoreButton="True"
 				 WindowStartupLocation="CenterScreen"
-				 Width="700"
+				 Width="900"
 				 Height="650"
+				 MinWidth="700"
+				 MinHeight="500"
 				 Title="{Binding Header}"
 				 d:DataContext="{DynamicResource DemoModel}">
 
@@ -53,47 +56,145 @@
 	<Grid>
 		<!-- Основное содержимое -->
 		<Grid>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="50" />
-				<ColumnDefinition Width="200" />
-				<ColumnDefinition Width="Auto" />
-			</Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="260" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-			<Grid Grid.Column="1">
-				<!-- Список чатов -->
-				<ListView x:Name="ChatsList"
-						  ItemsSource="{Binding Chats}"
-						  SelectedItem="{Binding SelectedChat}"
-						  Visibility="{Binding MainWindowState, Converter={converters:EnumToVisibilityConverter}, ConverterParameter={x:Static main:MainWindowState.Chats}, Mode=OneWay}">
-					<!-- Шаблон элемента чата -->
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <!-- Список чатов -->
+
+                <ListView x:Name="ChatsList" Grid.Row="2"
+					  ItemsSource="{Binding ChatsView}"
+					  SelectedItem="{Binding SelectedChat}"
+					  HorizontalContentAlignment="Stretch"
+					  Visibility="{Binding MainWindowState, Converter={converters:EnumToVisibilityConverter}, ConverterParameter={x:Static main:MainWindowState.Chats}, Mode=OneWay}">
+                    <!-- Шаблон элемента чата -->
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" Margin="5">
-                                <!-- Аватар -->
-                                <!--
-								<Image Source="{Binding AvatarUrl}"
-									   Width="40"
-									   Height="40"
-									   Margin="0,0,10,0" />-->
-
-                                <!-- Информация о контакте -->
                                 <StackPanel>
                                     <TextBlock Text="{Binding Name}"
-											   FontWeight="Bold" />
-                                    <!--<TextBlock Text="{Binding Status}"
-											   Foreground="Gray"
-											   FontSize="12" />-->
+										   FontWeight="Bold"
+										   TextTrimming="CharacterEllipsis" />
                                 </StackPanel>
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
 
-				<!-- Список контактов -->
-				<ListView x:Name="ContactsList"
+                <Border Grid.Row="1"
+					Padding="5"
+					Background="{DynamicResource MahApps.Brushes.Gray10}"
+					Visibility="{Binding IsContactSearchVisible, Converter={converters:BoolToVisibilityConverter}, Mode=OneWay}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox Grid.Column="0"
+							 Text="{Binding ContactSearchName, UpdateSourceTrigger=PropertyChanged}"
+							 VerticalContentAlignment="Center"
+							 controls:TextBoxHelper.Watermark="Поиск по имени..."
+							 controls:TextBoxHelper.ClearTextButton="True">
+                            <TextBox.InputBindings>
+                                <KeyBinding Key="Enter" Command="{Binding FindContactsCommand}" />
+                            </TextBox.InputBindings>
+                            <i:Interaction.Behaviors>
+                                <behaviors:HandleFrameworkElementMouseMoveBehavior />
+                            </i:Interaction.Behaviors>
+                        </TextBox>
+
+                        <Button Grid.Column="1"
+							Command="{Binding FindContactsCommand}"
+							Style="{StaticResource MahApps.Styles.Button.Circle}"
+							Width="30"
+							Height="30"
+							Margin="5,0,0,0"
+							ToolTip="Найти">
+                            <iconPacks:PackIconMaterial Kind="Magnify" Width="16" Height="16" />
+                        </Button>
+
+                        <Button Grid.Column="2"
+							Command="{Binding CloseContactSearchCommand}"
+							Style="{StaticResource MahApps.Styles.Button.Circle}"
+							Width="30"
+							Height="30"
+							Margin="5,0,0,0"
+							ToolTip="Закрыть поиск">
+                            <iconPacks:PackIconMaterial Kind="Close" Width="16" Height="16" />
+                        </Button>
+                    </Grid>
+                </Border>
+                <Grid Grid.Row="2"
+				  Visibility="{Binding MainWindowState, Converter={converters:EnumToVisibilityConverter}, ConverterParameter={x:Static main:MainWindowState.Contacts}, Mode=OneWay}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <controls:ProgressRing Grid.Row="0"
+								   Width="24"
+								   Height="24"
+								   Margin="0,5"
+								   IsActive="{Binding IsContactSearchInProgress, Mode=OneWay}"
+								   Visibility="{Binding IsContactSearchInProgress, Converter={converters:BoolToVisibilityConverter}, Mode=OneWay}" />
+
+                    <ListView x:Name="FoundUsersList" Grid.Row="1"
+					  MaxHeight="200"
+					  ItemsSource="{Binding FoundUsers}"
+					  SelectedItem="{Binding SelectedFoundUser}"
+					  HorizontalContentAlignment="Stretch"
+					  Visibility="{Binding IsContactSearchVisible, Converter={converters:BoolToVisibilityConverter}, Mode=OneWay}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Nickname}"
+										   FontWeight="Bold"
+										   TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding Name}"
+										   FontSize="12"
+										   Foreground="Gray"
+										   TextTrimming="CharacterEllipsis"
+										   Visibility="{Binding Name, Converter={converters:StringEmptyToVisibilityConverter}, Mode=OneWay}" />
+                                    </StackPanel>
+
+                                    <Button Grid.Column="1"
+									Command="{Binding DataContext.AddContactCommand, RelativeSource={RelativeSource AncestorType=ListView}, Mode=OneWay}"
+									CommandParameter="{Binding}"
+									Style="{StaticResource MahApps.Styles.Button.Circle}"
+									Width="28"
+									Height="28"
+									ToolTip="Добавить в контакты">
+                                        <iconPacks:PackIconMaterial Kind="AccountPlus" Width="14" Height="14" />
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+
+
+                    <!-- Список контактов -->
+                <ListView x:Name="ContactsList" Grid.Row="2"
 						  ItemsSource="{Binding Contacts}"
 						  SelectedItem="{Binding SelectedContact}"
-						  Visibility="{Binding MainWindowState, Converter={converters:EnumToVisibilityConverter}, ConverterParameter={x:Static main:MainWindowState.Contacts}, Mode=OneWay}">
+						  HorizontalContentAlignment="Stretch">
+
 					<!-- Шаблон элемента контакта -->
 					<ListView.ItemTemplate>
 						<DataTemplate>
@@ -105,109 +206,336 @@
 									   Margin="0,0,10,0" />-->
 
 								<!-- Информация о контакте -->
-								<StackPanel>
-									<TextBlock Text="{Binding Name}"
-											   FontWeight="Bold" />
-									<!--<TextBlock Text="{Binding Status}"
-											   Foreground="Gray"
-											   FontSize="12" />-->
-								</StackPanel>
-							</StackPanel>
+
+                                <StackPanel>
+                                    <TextBlock Text="{Binding AddedUserNickname}"
+									   FontWeight="Bold"
+									   TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Text="{Binding Name}"
+									   FontSize="12"
+									   Foreground="Gray"
+									   TextTrimming="CharacterEllipsis"
+									   Visibility="{Binding Name, Converter={converters:StringEmptyToVisibilityConverter}, Mode=OneWay}" />
+                                </StackPanel>
+                            </StackPanel>
 						</DataTemplate>
 					</ListView.ItemTemplate>
 				</ListView>
+                </Grid>
 
-				<i:Interaction.Behaviors>
+                <i:Interaction.Behaviors>
+
 					<behaviors:HandleFrameworkElementMouseMoveBehavior />
 				</i:Interaction.Behaviors>
 
 			</Grid>
 
 			<!-- Поле сообщений -->
-			<StackPanel Grid.Column="2" Orientation="Vertical">
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-				<Border Background="#FF4081" Height="40">
-					<TextBlock Text="{Binding SelectedChat.Name}"
-							   Foreground="White"
-							   FontSize="16"
-							   FontWeight="Bold"
-							   VerticalAlignment="Center"
-							   Margin="10,0"
-							   TextTrimming="CharacterEllipsis" />
-				</Border>
+                <Border Grid.Row="0" Background="#FF4081" Height="40">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
 
-				<ScrollViewer VerticalScrollBarVisibility="Auto"
-							  Height="430"
-							  Width="450"
-							  Background="CornflowerBlue">
-					<ItemsControl ItemsSource="{Binding Source={StaticResource MessagesViewSource}}">
-						<ItemsControl.ItemTemplate>
-							<DataTemplate>
-								<Border Margin="5" Padding="10" BorderBrush="Black" BorderThickness="1" CornerRadius="5">
-									<StackPanel>
-										<TextBlock Text="{Binding Sender}" FontSize="14" FontWeight="Bold" Foreground="Black" />
-										<TextBlock Text="{Binding Text}" FontSize="14" Foreground="Black" TextWrapping="Wrap" Margin="0,5,0,0" />
-										<TextBlock Text="{Binding Timestamp}" FontSize="10" Foreground="Brown" HorizontalAlignment="Right" />
-									</StackPanel>
-								</Border>
-							</DataTemplate>
-						</ItemsControl.ItemTemplate>
-					</ItemsControl>
-					<i:Interaction.Behaviors>
-						<behaviors:HandleFrameworkElementMouseMoveBehavior />
-					</i:Interaction.Behaviors>
-				</ScrollViewer>
+                        <TextBlock Grid.Column="0"
+					   Text="{Binding SelectedChat.Name}"
+					   Foreground="White"
+					   FontSize="16"
+					   FontWeight="Bold"
+					   VerticalAlignment="Center"
+					   Margin="10,0"
+					   TextTrimming="CharacterEllipsis" />
 
-				<!-- Поле ввода сообщения -->
-				<StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-					<Grid>
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="330" />
-							<ColumnDefinition Width="50" />
-							<ColumnDefinition Width="70" />
-						</Grid.ColumnDefinitions>
-						<Grid.RowDefinitions>
-							<RowDefinition />
-							<RowDefinition />
-						</Grid.RowDefinitions>
+                        <Button x:Name="ChatUsersButton"
+					Grid.Column="1"
+					Command="{Binding ToggleChatUsersPanelCommand}"
+					Style="{StaticResource MahApps.Styles.Button.Circle}"
+					Width="30"
+					Height="30"
+					Margin="0,0,8,0"
+					ToolTip="Участники чата">
+                            <iconPacks:PackIconMaterial Kind="AccountMultiplePlus" Width="16" Height="16" />
+                        </Button>
 
-						<TextBox Grid.Column="0" Grid.Row="0" HorizontalContentAlignment="Stretch"
-								 Text="{Binding NewMessageText, UpdateSourceTrigger=PropertyChanged}"
-								 VerticalContentAlignment="Center"
-								 controls:TextBoxHelper.Watermark="Введите сообщение..."
-								 Margin="5,5,5,0">
-							<TextBox.InputBindings>
-								<KeyBinding Key="Enter" Command="{Binding SendMessageCommand}" />
-							</TextBox.InputBindings>
-							<i:Interaction.Behaviors>
-								<behaviors:HandleFrameworkElementMouseMoveBehavior />
-							</i:Interaction.Behaviors>
-						</TextBox>
+                        <Popup PlacementTarget="{Binding ElementName=ChatUsersButton}"
+				   Placement="Bottom"
+				   HorizontalOffset="-260"
+				   StaysOpen="False"
+				   AllowsTransparency="True"
+				   PopupAnimation="Fade"
+				   IsOpen="{Binding IsChatUsersPanelOpen, Mode=TwoWay}">
+                            <Border Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+						BorderBrush="{DynamicResource MahApps.Brushes.Gray7}"
+						BorderThickness="1"
+						CornerRadius="8"
+						Padding="8"
+						Width="300">
+                                <StackPanel>
+                                    <TextBlock Text="Участники чата" FontWeight="Bold" Margin="0,0,0,5" />
 
-						<Button Grid.Column="1" Grid.Row="0"
-								Command="{Binding AttachFileCommand}"
-								Style="{StaticResource MahApps.Styles.Button.Circle}"
-								Width="40"
-								Height="40"
-								Margin="0,0,5,0"
-								ToolTip="Прикрепить файл">
-							<iconPacks:PackIconMaterial Kind="Paperclip" Width="24" Height="24" />
-						</Button>
+                                    <ItemsControl ItemsSource="{Binding ChatUsers}" MaxHeight="150">
+                                        <ItemsControl.Template>
+                                            <ControlTemplate TargetType="ItemsControl">
+                                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                                    <ItemsPresenter />
+                                                </ScrollViewer>
+                                            </ControlTemplate>
+                                        </ItemsControl.Template>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,2">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
 
-						<Button Grid.Column="2" Grid.Row="0"
-								Command="{Binding SendMessageCommand}"
-								Style="{StaticResource ChatButtonStyle}"
-								Content="SEND" />
-						<!-- Статусная строка -->
-						<StatusBar Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="1"
-								   Background="Transparent">
-							<TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="Black" />
-						</StatusBar>
-					</Grid>
-				</StackPanel>
-			</StackPanel>
+                                                    <TextBlock Grid.Column="0"
+												   Text="{Binding Nickname}"
+												   VerticalAlignment="Center"
+												   TextTrimming="CharacterEllipsis" />
 
-			<!--<StackPanel VerticalAlignment="Center"
+                                                    <Button Grid.Column="1"
+												Command="{Binding DataContext.RemoveUserFromChatCommand, RelativeSource={RelativeSource AncestorType=Popup}, Mode=OneWay}"
+												CommandParameter="{Binding}"
+												Style="{StaticResource MahApps.Styles.Button.Circle}"
+												Width="24"
+												Height="24"
+												ToolTip="Убрать из чата">
+                                                        <iconPacks:PackIconMaterial Kind="AccountMinus" Width="12" Height="12" />
+                                                    </Button>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <Grid Margin="0,8,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBox Grid.Column="0"
+									 Text="{Binding ChatUserSearchName, UpdateSourceTrigger=PropertyChanged}"
+									 VerticalContentAlignment="Center"
+									 controls:TextBoxHelper.Watermark="Добавить пользователя..."
+									 controls:TextBoxHelper.ClearTextButton="True">
+                                            <TextBox.InputBindings>
+                                                <KeyBinding Key="Enter" Command="{Binding FindChatUsersCommand}" />
+                                            </TextBox.InputBindings>
+                                        </TextBox>
+
+                                        <Button Grid.Column="1"
+									Command="{Binding FindChatUsersCommand}"
+									Style="{StaticResource MahApps.Styles.Button.Circle}"
+									Width="28"
+									Height="28"
+									Margin="5,0,0,0"
+									ToolTip="Найти">
+                                            <iconPacks:PackIconMaterial Kind="Magnify" Width="14" Height="14" />
+                                        </Button>
+                                    </Grid>
+
+                                    <controls:ProgressRing Width="20"
+											   Height="20"
+											   Margin="0,5"
+											   IsActive="{Binding IsChatUsersSearchInProgress, Mode=OneWay}"
+											   Visibility="{Binding IsChatUsersSearchInProgress, Converter={converters:BoolToVisibilityConverter}, Mode=OneWay}" />
+
+                                    <ItemsControl ItemsSource="{Binding FoundChatUsers}" MaxHeight="150">
+                                        <ItemsControl.Template>
+                                            <ControlTemplate TargetType="ItemsControl">
+                                                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                                    <ItemsPresenter />
+                                                </ScrollViewer>
+                                            </ControlTemplate>
+                                        </ItemsControl.Template>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Margin="0,2">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Nickname}" FontWeight="Bold" TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock Text="{Binding Name}"
+													   FontSize="12"
+													   Foreground="Gray"
+													   TextTrimming="CharacterEllipsis"
+													   Visibility="{Binding Name, Converter={converters:StringEmptyToVisibilityConverter}, Mode=OneWay}" />
+                                                    </StackPanel>
+
+                                                    <Button Grid.Column="1"
+												Command="{Binding DataContext.AddUserToChatCommand, RelativeSource={RelativeSource AncestorType=Popup}, Mode=OneWay}"
+												CommandParameter="{Binding}"
+												Style="{StaticResource MahApps.Styles.Button.Circle}"
+												Width="28"
+												Height="28"
+												ToolTip="Добавить в чат">
+                                                        <iconPacks:PackIconMaterial Kind="AccountPlus" Width="14" Height="14" />
+                                                    </Button>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </Border>
+                        </Popup>
+                    </Grid>
+                </Border>
+
+                <ScrollViewer Grid.Row="1"
+				  VerticalScrollBarVisibility="Auto"
+				  HorizontalScrollBarVisibility="Disabled"
+				  Padding="5"
+				  Background="{DynamicResource MahApps.Brushes.Gray10}">
+                    <ItemsControl ItemsSource="{Binding Source={StaticResource MessagesViewSource}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="5"
+							Padding="10"
+							MaxWidth="420"
+							HorizontalAlignment="Left"
+							Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+							BorderBrush="{DynamicResource MahApps.Brushes.Gray7}"
+							BorderThickness="1"
+							CornerRadius="8">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Sender}"
+									   FontSize="13"
+									   FontWeight="Bold"
+									   Foreground="{DynamicResource MahApps.Brushes.Accent}" />
+                                        <emojiControls:EmojiTextBlock FormattedText="{Binding Text}"
+												 FontSize="14"
+												 TextWrapping="Wrap"
+												 Margin="0,5,0,0" />
+                                        <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:HH:mm}'}"
+									   FontSize="10"
+									   Foreground="Gray"
+									   HorizontalAlignment="Right" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <i:Interaction.Behaviors>
+                        <behaviors:HandleFrameworkElementMouseMoveBehavior />
+                    </i:Interaction.Behaviors>
+                </ScrollViewer>
+
+                <!-- Поле ввода сообщения -->
+                <Grid Grid.Row="2" Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox Grid.Column="0"
+				 HorizontalContentAlignment="Stretch"
+				 Text="{Binding NewMessageText, UpdateSourceTrigger=PropertyChanged}"
+				 VerticalContentAlignment="Center"
+				 controls:TextBoxHelper.Watermark="Введите сообщение...">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding SendMessageCommand}" />
+                        </TextBox.InputBindings>
+                        <i:Interaction.Behaviors>
+                            <behaviors:HandleFrameworkElementMouseMoveBehavior />
+                        </i:Interaction.Behaviors>
+                    </TextBox>
+
+                    <Button Grid.Column="1"
+				Command="{Binding AttachFileCommand}"
+				Style="{StaticResource MahApps.Styles.Button.Circle}"
+				Width="40"
+				Height="40"
+				Margin="5,0"
+				ToolTip="Прикрепить файл">
+                        <iconPacks:PackIconMaterial Kind="Paperclip" Width="24" Height="24" />
+                    </Button>
+
+                    <Button x:Name="EmojiButton"
+				Grid.Column="2"
+				Command="{Binding ToggleEmojiPickerCommand}"
+				Style="{StaticResource MahApps.Styles.Button.Circle}"
+				Width="40"
+				Height="40"
+				Margin="0,0,5,0"
+				ToolTip="Смайлики">
+                        <iconPacks:PackIconMaterial Kind="EmoticonOutline" Width="24" Height="24" />
+                    </Button>
+
+                    <Popup PlacementTarget="{Binding ElementName=EmojiButton}"
+			   Placement="Top"
+			   HorizontalOffset="-160"
+			   StaysOpen="False"
+			   AllowsTransparency="True"
+			   PopupAnimation="Fade"
+			   IsOpen="{Binding IsEmojiPickerOpen, Mode=TwoWay}">
+                        <Border Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+					BorderBrush="{DynamicResource MahApps.Brushes.Gray7}"
+					BorderThickness="1"
+					CornerRadius="8"
+					Padding="5">
+                            <ScrollViewer MaxHeight="260"
+							  VerticalScrollBarVisibility="Auto"
+							  HorizontalScrollBarVisibility="Disabled">
+                                <ItemsControl ItemsSource="{Binding Emojis}" Width="300">
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <WrapPanel Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button Command="{Binding DataContext.InsertEmojiCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}, Mode=OneWay}"
+													CommandParameter="{Binding}"
+													Style="{StaticResource MahApps.Styles.Button.Chromeless}"
+													Width="44"
+													Height="44"
+													Padding="2"
+													ToolTip="{Binding Code}">
+                                                <Image gif:ImageBehavior.AnimatedSource="{Binding Source}"
+														gif:ImageBehavior.RepeatBehavior="Forever"
+														Width="36"
+														Height="36"
+														Stretch="Uniform" />
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Border>
+                    </Popup>
+
+                    <Button Grid.Column="3"
+				Command="{Binding SendMessageCommand}"
+				Style="{StaticResource ChatButtonStyle}"
+				MinWidth="70"
+				Content="Отправить" />
+                </Grid>
+
+                <!-- Статусная строка -->
+				<StatusBar Grid.Row="3" Background="Transparent">
+                            <TextBlock Text="{Binding StatusMessage}"
+						   FontSize="12"
+                           Foreground="Black"
+						   TextTrimming="CharacterEllipsis" />
+                        </StatusBar>
+            </Grid>
+            
+            <!--<StackPanel VerticalAlignment="Center"
 						HorizontalAlignment="Center">
 				<StackPanel Orientation="Horizontal">
 					<TextBlock FontSize="16"
@@ -225,10 +553,9 @@
 						Command="{Binding ExitCommand, Mode=OneWay}"
 						Content="Exit" />
 			</StackPanel>-->
-
-		</Grid>
-
-		<!-- Меню -->
+            
+        </Grid>
+         <!-- Меню -->
 		<mah:HamburgerMenu Grid.Column="0" x:Name="HamburgerMenuControl"
 						   ItemsSource="{Binding Menu.MenuItems}"
 						   SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
@@ -249,7 +576,7 @@
 				<DataTemplate>
 					<StackPanel Orientation="Horizontal" Visibility="{Binding IsVisible}">
 						<iconPacks:PackIconIonicons Kind="{Binding Icon}" Padding="10" Width="50" Height="50" />
-						<TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" />
+						<TextBlock  Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" />
 					</StackPanel>
 				</DataTemplate>
 			</mah:HamburgerMenu.ItemTemplate>
