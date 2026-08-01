@@ -75,14 +75,14 @@ public class ContactsClient : HttpClientBase, IContactsClient
                 cancellationToken));
     }
 
-	public Task DeleteContactsAsync(Guid id,
-									CancellationToken cancellationToken = default)
-	{
-		return _tokenProvider.ExecuteWithToken(token =>
-			SendRequestAsync(
-				Method.Delete,
-				"api/contacts",
-				token,
-				cancellationToken));
-	}
+    public Task DeleteContactsAsync(Guid id,
+                                    CancellationToken cancellationToken = default)
+    {
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync(
+                Method.Delete,
+                $"api/contacts/{id}",
+                token,
+                cancellationToken));
+    }
 }
