@@ -4,11 +4,7 @@ public class MessageDto
 {
 	public Guid Id { get; set; }
 	public string? Text { get; set; }
-<<<<<<< HEAD
-	FileDto? FileDto { get; set; }
-=======
     public FileDto? FileDto { get; set; }
->>>>>>> master
 	public DateTime CreationTime { get; set; }
 	public DateTime LastChangeTime { get; set; }
 	public Guid UserId { get; set; }

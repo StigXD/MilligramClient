@@ -864,7 +864,7 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
 
         try
         {
-            var createContactDto = new CreateContactDto { Name = user.Name, AddedUserId = user.Id };
+            var createContactDto = new ContactDto { Name = user.Name, AddedUserId = user.Id };
             var createdContact = await _contactsClient.CreateContactAsync(createContactDto).ConfigureAwait(false);
 
             _dispatcherHelper.CheckBeginInvokeOnUI(() =>
