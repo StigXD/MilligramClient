@@ -1,5 +1,7 @@
-﻿using MilligramClient.Api.Token;
+﻿using MilligramClient.Api.Extensions;
+using MilligramClient.Api.Token;
 using MilligramClient.Domain.Dtos;
+
 using RestSharp;
 
 namespace MilligramClient.Api.Clients.Chats;
@@ -59,6 +61,19 @@ public class ChatsClient : HttpClientBase, IChatsClient
                 token,
                 request => request
                     .AddBody(updatedChat),
+                cancellationToken));
+    }
+
+    public Task<ChatDto[]> SearchChatsAsync(string name,
+                                           CancellationToken cancellationToken = default)
+    {
+        return _tokenProvider.ExecuteWithToken(token =>
+            SendRequestAsync<ChatDto[]>(
+                Method.Get,
+                "api/chats/search",
+                token,
+                request => request
+                    .AddQueryParameterIfNotNull("name", name),
                 cancellationToken));
     }
 

@@ -33,6 +33,7 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
     private string _statusMessage;
     private HamburgerMenuItem _selectedMenuItem;
     private ChatDto _selectedChat;
+    private ChatDto _selectedFoundChat;
     private ContactDto _selectedContact;
     private UserDto _selectedFoundUser;
     private string _contactSearchName;
@@ -139,6 +140,16 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
         set
         {
             Set(ref _selectedChat, value);
+            OnChatSelected();
+        }
+    }
+
+    public ChatDto SelectedFoundChat
+    {
+        get => _selectedFoundChat;
+        set
+        {
+            Set(ref _selectedFoundChat, value);
             OnChatSelected();
         }
     }
@@ -487,12 +498,16 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
     private void OpenChatSearch()
     {
         ChatSearchName = string.Empty;
+        SelectedFoundChat = null;
+        FoundChatUsers.Clear();
         IsChatSearchVisible = true;
     }
 
     private void CloseChatSearch()
     {
         IsChatSearchVisible = false;
+        FoundChatUsers.Clear();
+        SelectedFoundChat = null;
         ChatSearchName = string.Empty;
     }
 

@@ -134,6 +134,52 @@
                         </Button>
                     </Grid>
                 </Border>
+				<!-- Поиск чатов -->
+				<Border Grid.Row="1"
+						Padding="5"
+						Background="{DynamicResource MahApps.Brushes.Gray10}"
+						Visibility="{Binding IsChatSearchVisible, Converter={converters:BoolToVisibilityConverter}, Mode=OneWay}">
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*" />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+						</Grid.ColumnDefinitions>
+
+						<TextBox Grid.Column="0"
+								 Text="{Binding ChatSearchName, UpdateSourceTrigger=PropertyChanged}"
+								 VerticalContentAlignment="Center"
+								 controls:TextBoxHelper.Watermark="Поиск чатов..."
+								 controls:TextBoxHelper.ClearTextButton="True">
+							<TextBox.InputBindings>
+								<KeyBinding Key="Enter" Command="{Binding FindChatCommand}" />
+							</TextBox.InputBindings>
+							<i:Interaction.Behaviors>
+								<behaviors:HandleFrameworkElementMouseMoveBehavior />
+							</i:Interaction.Behaviors>
+						</TextBox>
+
+						<Button Grid.Column="1"
+								Command="{Binding FindChatCommand}"
+								Style="{StaticResource MahApps.Styles.Button.Circle}"
+								Width="30"
+								Height="30"
+								Margin="5,0,0,0"
+								ToolTip="Найти">
+							<iconPacks:PackIconMaterial Kind="Magnify" Width="16" Height="16" />
+						</Button>
+
+						<Button Grid.Column="2"
+								Command="{Binding CloseChatSearchCommand}"
+								Style="{StaticResource MahApps.Styles.Button.Circle}"
+								Width="30"
+								Height="30"
+								Margin="5,0,0,0"
+								ToolTip="Закрыть поиск">
+							<iconPacks:PackIconMaterial Kind="Close" Width="16" Height="16" />
+						</Button>
+					</Grid>
+				</Border>
                 <Grid Grid.Row="2"
 				  Visibility="{Binding MainWindowState, Converter={converters:EnumToVisibilityConverter}, ConverterParameter={x:Static main:MainWindowState.Contacts}, Mode=OneWay}">
                     <Grid.RowDefinitions>
