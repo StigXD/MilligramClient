@@ -5,6 +5,8 @@
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
 				<ResourceDictionary Source="Themes/Styles.xaml" />
+				<!-- Тема терминала поверх базовых стилей -->
+				<ResourceDictionary Source="Themes/TerminalTheme.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 		</ResourceDictionary>
 	</Application.Resources>
