@@ -15,16 +15,19 @@
 				 xmlns:converter="clr-namespace:MahApps.Metro.IconPacks.Converter;assembly=MahApps.Metro.IconPacks.Core"
 				 xmlns:сontrols="http://metro.mahapps.com/winfx/xaml/controls"
 				 xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase" xmlns:emojiControls="clr-namespace:MilligramClient.Wpf.Controls"
-                 mc:Ignorable="d"
-				 ResizeMode="CanResize"
-				 ShowMaxRestoreButton="True"
-				 WindowStartupLocation="CenterScreen"
-				 Width="900"
-				 Height="650"
-				 MinWidth="700"
-				 MinHeight="500"
-				 Title="{Binding Header}"
-				 d:DataContext="{DynamicResource DemoModel}">
+				  mc:Ignorable="d"
+				 Background="{DynamicResource TerminalBackgroundBrush}"
+				 Foreground="{DynamicResource TerminalForegroundBrush}"
+				 FontFamily="{DynamicResource TerminalFontFamily}"
+			 ResizeMode="CanResize"
+			 ShowMaxRestoreButton="True"
+			 WindowStartupLocation="CenterScreen"
+			 Width="900"
+			 Height="650"
+			 MinWidth="700"
+			 MinHeight="500"
+			 Title="{Binding Header}"
+			 d:DataContext="{DynamicResource DemoModel}">
 
 	<controls:MetroWindow.Resources>
 		<main:DemoModel x:Key="DemoModel" />
@@ -33,6 +36,8 @@
 			<Setter Property="Margin" Value="5" />
 			<Setter Property="Padding" Value="10,5" />
 			<Setter Property="FontSize" Value="14" />
+			<Setter Property="Background" Value="{StaticResource TerminalBorderGray}" />
+			<Setter Property="Foreground" Value="{StaticResource TerminalMenuButtonBrush}" />
 		</Style>
 
 		<CollectionViewSource x:Key="MessagesViewSource" Source="{Binding Messages}">
@@ -68,6 +73,13 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
+				<!-- Заголовок Chats/Contacts -->
+				<Border Grid.Row="0" Padding="8" BorderBrush="{StaticResource TerminalBorderGray}" BorderThickness="0,0,0,1">
+					<StackPanel Orientation="Horizontal">
+						<TextBlock Text="Чаты" Foreground="{StaticResource TerminalAccentBrush}" FontSize="14" VerticalAlignment="Center" Visibility="{Binding MainWindowState, Converter={converters:EnumToVisibilityConverter}, ConverterParameter={x:Static main:MainWindowState.Chats}, Mode=OneWay}" />
+						<TextBlock Text="Контакты" Foreground="{StaticResource TerminalAccentBrush}" FontSize="14" VerticalAlignment="Center" Visibility="{Binding MainWindowState, Converter={converters:EnumToVisibilityConverter}, ConverterParameter={x:Static main:MainWindowState.Contacts}, Mode=OneWay}" />
+					</StackPanel>
+				</Border>
                 <!-- Список чатов -->
 
                 <ListView x:Name="ChatsList" Grid.Row="2"
@@ -134,6 +146,8 @@
                         </Button>
                     </Grid>
                 </Border>
+				<!-- Вертикальная разделительная линия между списком контактов/чатов и областью сообщений -->
+				<Border Grid.RowSpan="3" Grid.Row="0" HorizontalAlignment="Right" Width="1" Background="{StaticResource TerminalSeparatorBrush}" />
 				<!-- Поиск чатов -->
 				<Border Grid.Row="1"
 						Padding="5"
@@ -285,46 +299,48 @@
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
 
-                <Border Grid.Row="0" Background="#FF4081" Height="40">
+				<Border Grid.Row="0" Background="{StaticResource TerminalBackgroundBrush}" BorderBrush="{StaticResource TerminalBorderGray}" BorderThickness="0,0,0,1" Height="40">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
 
-                        <TextBlock Grid.Column="0"
+						<TextBlock Grid.Column="0"
 					   Text="{Binding SelectedChat.Name}"
-					   Foreground="White"
+					   Foreground="{StaticResource TerminalAccentBrush}"
 					   FontSize="16"
 					   FontWeight="Bold"
 					   VerticalAlignment="Center"
 					   Margin="10,0"
 					   TextTrimming="CharacterEllipsis" />
 
-                        <Button x:Name="ChatUsersButton"
+						<Button x:Name="ChatUsersButton"
 					Grid.Column="1"
 					Command="{Binding ToggleChatUsersPanelCommand}"
 					Style="{StaticResource MahApps.Styles.Button.Circle}"
 					Width="30"
 					Height="30"
 					Margin="0,0,8,0"
-					ToolTip="Участники чата">
-                            <iconPacks:PackIconMaterial Kind="AccountMultiplePlus" Width="16" Height="16" />
-                        </Button>
+					ToolTip="Участники чата"
+					Background="{StaticResource TerminalBorderGray}"
+					Foreground="{StaticResource TerminalMenuButtonBrush}">
+							<iconPacks:PackIconMaterial Kind="AccountMultiplePlus" Width="16" Height="16" />
+						</Button>
 
-                        <Popup PlacementTarget="{Binding ElementName=ChatUsersButton}"
+						<Popup PlacementTarget="{Binding ElementName=ChatUsersButton}"
 				   Placement="Bottom"
 				   HorizontalOffset="-260"
 				   StaysOpen="False"
 				   AllowsTransparency="True"
 				   PopupAnimation="Fade"
 				   IsOpen="{Binding IsChatUsersPanelOpen, Mode=TwoWay}">
-                            <Border Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
-						BorderBrush="{DynamicResource MahApps.Brushes.Gray7}"
-						BorderThickness="1"
-						CornerRadius="8"
-						Padding="8"
-						Width="300">
+							<Border Background="{StaticResource TerminalBackgroundBrush}"
+							BorderBrush="{StaticResource TerminalBorderGray}"
+							BorderThickness="1"
+							CornerRadius="8"
+							Padding="8"
+							Width="300">
                                 <StackPanel>
                                     <TextBlock Text="Участники чата" FontWeight="Bold" Margin="0,0,0,5" />
 
@@ -349,15 +365,17 @@
 												   VerticalAlignment="Center"
 												   TextTrimming="CharacterEllipsis" />
 
-                                                    <Button Grid.Column="1"
+													<Button Grid.Column="1"
 												Command="{Binding DataContext.RemoveUserFromChatCommand, RelativeSource={RelativeSource AncestorType=Popup}, Mode=OneWay}"
 												CommandParameter="{Binding}"
 												Style="{StaticResource MahApps.Styles.Button.Circle}"
 												Width="24"
 												Height="24"
-												ToolTip="Убрать из чата">
-                                                        <iconPacks:PackIconMaterial Kind="AccountMinus" Width="12" Height="12" />
-                                                    </Button>
+												ToolTip="Убрать из чата"
+												Background="{StaticResource TerminalBorderGray}"
+												Foreground="{StaticResource TerminalMenuButtonBrush}">
+														<iconPacks:PackIconMaterial Kind="AccountMinus" Width="12" Height="12" />
+													</Button>
                                                 </Grid>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
@@ -378,16 +396,17 @@
                                                 <KeyBinding Key="Enter" Command="{Binding FindChatUsersCommand}" />
                                             </TextBox.InputBindings>
                                         </TextBox>
-
-                                        <Button Grid.Column="1"
+										<Button Grid.Column="1"
 									Command="{Binding FindChatUsersCommand}"
 									Style="{StaticResource MahApps.Styles.Button.Circle}"
 									Width="28"
 									Height="28"
 									Margin="5,0,0,0"
-									ToolTip="Найти">
-                                            <iconPacks:PackIconMaterial Kind="Magnify" Width="14" Height="14" />
-                                        </Button>
+									ToolTip="Найти"
+									Background="{StaticResource TerminalBorderGray}"
+									Foreground="{StaticResource TerminalMenuButtonBrush}">
+											<iconPacks:PackIconMaterial Kind="Magnify" Width="14" Height="14" />
+										</Button>
                                     </Grid>
 
                                     <controls:ProgressRing Width="20"
@@ -421,15 +440,17 @@
 													   Visibility="{Binding Name, Converter={converters:StringEmptyToVisibilityConverter}, Mode=OneWay}" />
                                                     </StackPanel>
 
-                                                    <Button Grid.Column="1"
+													<Button Grid.Column="1"
 												Command="{Binding DataContext.AddUserToChatCommand, RelativeSource={RelativeSource AncestorType=Popup}, Mode=OneWay}"
 												CommandParameter="{Binding}"
 												Style="{StaticResource MahApps.Styles.Button.Circle}"
 												Width="28"
 												Height="28"
-												ToolTip="Добавить в чат">
-                                                        <iconPacks:PackIconMaterial Kind="AccountPlus" Width="14" Height="14" />
-                                                    </Button>
+												ToolTip="Добавить в чат"
+												Background="{StaticResource TerminalBorderGray}"
+												Foreground="{StaticResource TerminalMenuButtonBrush}">
+														<iconPacks:PackIconMaterial Kind="AccountPlus" Width="14" Height="14" />
+													</Button>
                                                 </Grid>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
@@ -440,37 +461,45 @@
                     </Grid>
                 </Border>
 
-                <ScrollViewer Grid.Row="1"
-				  VerticalScrollBarVisibility="Auto"
-				  HorizontalScrollBarVisibility="Disabled"
-				  Padding="5"
-				  Background="{DynamicResource MahApps.Brushes.Gray10}">
+				<ScrollViewer Grid.Row="1"
+			  VerticalScrollBarVisibility="Auto"
+			  HorizontalScrollBarVisibility="Disabled"
+			  Padding="5"
+			  Background="{StaticResource TerminalBackgroundBrush}">
                     <ItemsControl ItemsSource="{Binding Source={StaticResource MessagesViewSource}}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Margin="5"
-							Padding="10"
-							MaxWidth="420"
-							HorizontalAlignment="Left"
-							Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
-							BorderBrush="{DynamicResource MahApps.Brushes.Gray7}"
-							BorderThickness="1"
-							CornerRadius="8">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding Sender}"
-									   FontSize="13"
-									   FontWeight="Bold"
-									   Foreground="{DynamicResource MahApps.Brushes.Accent}" />
-                                        <emojiControls:EmojiTextBlock FormattedText="{Binding Text}"
-												 FontSize="14"
-												 TextWrapping="Wrap"
-												 Margin="0,5,0,0" />
-                                        <TextBlock Text="{Binding Timestamp, StringFormat='{}{0:HH:mm}'}"
-									   FontSize="10"
-									   Foreground="Gray"
-									   HorizontalAlignment="Right" />
-                                    </StackPanel>
-                                </Border>
+				<Grid Margin="5" HorizontalAlignment="Stretch">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="Auto" />
+					</Grid.ColumnDefinitions>
+					<Border Grid.Column="0"
+						Padding="10"
+						MaxWidth="420"
+						HorizontalAlignment="Left"
+						Background="{StaticResource TerminalBackgroundBrush}"
+						BorderThickness="0">
+						<StackPanel>
+							<TextBlock Text="{Binding Sender}"
+							   FontSize="13"
+							   FontWeight="Bold"
+							   Foreground="{StaticResource TerminalAccentBrush}" />
+							<emojiControls:EmojiTextBlock FormattedText="{Binding Text}"
+							   FontSize="14"
+							   FontFamily="Segoe UI Emoji"
+							   Foreground="{StaticResource TerminalMessageTextBrush}"
+							   TextWrapping="Wrap"
+							   Margin="0,6,0,0" />
+						</StackPanel>
+					</Border>
+					<TextBlock Grid.Column="1"
+						Text="{Binding Timestamp, StringFormat='{}{0:HH:mm}'}"
+						FontSize="10"
+						Foreground="{StaticResource TerminalMessageTimeBrush}"
+						VerticalAlignment="Top"
+						Margin="8,0,0,0" />
+				</Grid>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -501,26 +530,30 @@
                         </i:Interaction.Behaviors>
                     </TextBox>
 
-                    <Button Grid.Column="1"
+					<Button Grid.Column="1"
 				Command="{Binding AttachFileCommand}"
 				Style="{StaticResource MahApps.Styles.Button.Circle}"
 				Width="40"
 				Height="40"
 				Margin="5,0"
-				ToolTip="Прикрепить файл">
-                        <iconPacks:PackIconMaterial Kind="Paperclip" Width="24" Height="24" />
-                    </Button>
+				ToolTip="Прикрепить файл"
+				Background="{StaticResource TerminalBorderGray}"
+				Foreground="{StaticResource TerminalMenuButtonBrush}">
+						<iconPacks:PackIconMaterial Kind="Paperclip" Width="24" Height="24" />
+					</Button>
 
-                    <Button x:Name="EmojiButton"
-				Grid.Column="2"
-				Command="{Binding ToggleEmojiPickerCommand}"
-				Style="{StaticResource MahApps.Styles.Button.Circle}"
-				Width="40"
-				Height="40"
-				Margin="0,0,5,0"
-				ToolTip="Смайлики">
-                        <iconPacks:PackIconMaterial Kind="EmoticonOutline" Width="24" Height="24" />
-                    </Button>
+					<Button x:Name="EmojiButton"
+		Grid.Column="2"
+		Command="{Binding ToggleEmojiPickerCommand}"
+		Style="{StaticResource MahApps.Styles.Button.Circle}"
+		Width="40"
+		Height="40"
+		Margin="0,0,5,0"
+		ToolTip="Смайлики"
+		Background="{StaticResource TerminalBorderGray}"
+		Foreground="{StaticResource TerminalMenuButtonBrush}">
+						<iconPacks:PackIconMaterial Kind="EmoticonOutline" Width="24" Height="24" />
+					</Button>
 
                     <Popup PlacementTarget="{Binding ElementName=EmojiButton}"
 			   Placement="Top"
@@ -572,13 +605,13 @@
 				Content="Отправить" />
                 </Grid>
 
-                <!-- Статусная строка -->
+				<!-- Статусная строка -->
 				<StatusBar Grid.Row="3" Background="Transparent">
-                            <TextBlock Text="{Binding StatusMessage}"
+							<TextBlock Text="{Binding StatusMessage}"
 						   FontSize="12"
-                           Foreground="Black"
+						   Foreground="{StaticResource TerminalMenuButtonBrush}"
 						   TextTrimming="CharacterEllipsis" />
-                        </StatusBar>
+						</StatusBar>
             </Grid>
             
             <!--<StackPanel VerticalAlignment="Center"
@@ -603,37 +636,39 @@
         </Grid>
          <!-- Меню -->
 		<mah:HamburgerMenu Grid.Column="0" x:Name="HamburgerMenuControl"
-						   ItemsSource="{Binding Menu.MenuItems}"
-						   SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
-						   SelectedOptionsItem="{Binding SelectedMenuItem, Mode=TwoWay}"
-						   OptionsItemsSource="{Binding Menu.MenuOptionsItems}">
+				   ItemsSource="{Binding Menu.MenuItems}"
+				   SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}"
+				   SelectedOptionsItem="{Binding SelectedMenuItem, Mode=TwoWay}"
+				   OptionsItemsSource="{Binding Menu.MenuOptionsItems}"
+				   Background="{StaticResource TerminalBackgroundBrush}"
+				   Foreground="{StaticResource TerminalMenuButtonBrush}">
 
 			<mah:HamburgerMenu.HamburgerMenuHeaderTemplate>
-				<DataTemplate>
-					<TextBlock HorizontalAlignment="Center"
-							   VerticalAlignment="Center"
-							   FontSize="16"
-							   Foreground="White"
-							   Text="{Binding }" />
-				</DataTemplate>
+			<DataTemplate>
+				<TextBlock HorizontalAlignment="Center"
+					   VerticalAlignment="Center"
+					   FontSize="16"
+					   Foreground="{StaticResource TerminalMenuButtonBrush}"
+					   Text="{Binding }" />
+			</DataTemplate>
 			</mah:HamburgerMenu.HamburgerMenuHeaderTemplate>
 
 			<mah:HamburgerMenu.ItemTemplate>
-				<DataTemplate>
-					<StackPanel Orientation="Horizontal" Visibility="{Binding IsVisible}">
-						<iconPacks:PackIconIonicons Kind="{Binding Icon}" Padding="10" Width="50" Height="50" />
-						<TextBlock  Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" />
-					</StackPanel>
-				</DataTemplate>
+			<DataTemplate>
+				<StackPanel Orientation="Horizontal" Visibility="{Binding IsVisible}">
+					<iconPacks:PackIconIonicons Kind="{Binding Icon}" Padding="10" Width="50" Height="50" Foreground="{StaticResource TerminalMenuButtonBrush}" />
+					<TextBlock  Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" Foreground="{StaticResource TerminalMenuButtonBrush}" />
+				</StackPanel>
+			</DataTemplate>
 			</mah:HamburgerMenu.ItemTemplate>
 
 			<mah:HamburgerMenu.OptionsItemTemplate>
-				<DataTemplate>
-					<StackPanel Orientation="Horizontal" Visibility="{Binding IsVisible}">
-						<iconPacks:PackIconIonicons Kind="{Binding Icon}" Padding="10" Width="50" Height="50" />
-						<TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" />
-					</StackPanel>
-				</DataTemplate>
+			<DataTemplate>
+				<StackPanel Orientation="Horizontal" Visibility="{Binding IsVisible}">
+					<iconPacks:PackIconIonicons Kind="{Binding Icon}" Padding="10" Width="50" Height="50" Foreground="{StaticResource TerminalMenuButtonBrush}" />
+					<TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="16" Foreground="{StaticResource TerminalMenuButtonBrush}" />
+				</StackPanel>
+			</DataTemplate>
 			</mah:HamburgerMenu.OptionsItemTemplate>
 
 
