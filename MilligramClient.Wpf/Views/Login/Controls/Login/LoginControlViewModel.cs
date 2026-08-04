@@ -21,6 +21,7 @@ public class LoginControlViewModel : ViewModel<LoginControl>, IDataErrorInfo
 {
     private readonly IMessenger _messenger;
     private readonly ITokenProvider _tokenProvider;
+    private readonly ITokenStorage _tokenStorage;
     private readonly IMessageBoxService _messageBoxService;
 
     private readonly ExecutionTracker _executionTracker;
@@ -75,24 +76,29 @@ public class LoginControlViewModel : ViewModel<LoginControl>, IDataErrorInfo
         IMessageBoxService messageBoxService)
     {
         _messenger = messenger;
+        _tokenStorage = tokenStorage;
         _tokenProvider = tokenProvider;
         _messageBoxService = messageBoxService;
 
         _executionTracker = new ExecutionTracker(() => IsBusy = true, () => IsBusy = false);
-
-        Refresh();
+                   
+        _= Refresh();
     }
 
-    public void Refresh()
+    public async Task Refresh()
     {
         Login = string.Empty;
         Password = string.Empty;
+
+        if (_tokenStorage.GetToken()!=null)
+            await _tokenProvider.LoginAsync(_tokenStorage.GetToken()).ConfigureAwait(false);
     }
 
     private void OnCleanLogin()
     {
         Login = string.Empty;
     }
+
     private void OnCleanPassword()
     {
         Password = string.Empty;
@@ -114,6 +120,8 @@ public class LoginControlViewModel : ViewModel<LoginControl>, IDataErrorInfo
         {
             var loginDto = new LoginDto { Login = Login, Password = Password };
             await _tokenProvider.LoginAsync(loginDto).ConfigureAwait(false);
+            if (IsRememberMe)
+                _tokenStorage.SaveToken(_tokenProvider.GetToken());
         }
         catch (SendRequestException exception) when (exception.StatusCode == HttpStatusCode.Unauthorized)
         {
