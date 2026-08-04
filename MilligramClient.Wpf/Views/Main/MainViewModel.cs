@@ -106,7 +106,11 @@ public class MainViewModel : ViewModel<MainWindow>, INotifyPropertyChanged
     public string Login
     {
         get => _login;
-        set => Set(ref _login, value);
+        set
+        {
+            if (Set(ref _login, value))
+                RaisePropertyChanged(nameof(Header));
+        }
     }
 
     public string NewMessageText
